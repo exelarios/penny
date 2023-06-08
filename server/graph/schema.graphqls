@@ -1,0 +1,53 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar Time
+
+type Machine {
+  name: String!
+  location: String!
+  city: String!
+  designs: String!
+  updated: Time!
+}
+
+type Location {
+  name: String!
+  url: String!
+  area: Int!
+}
+
+input GetMachineByCodeInput {
+  area: Int!
+}
+
+input GetMachineByRegionInput {
+  region: String!
+}
+
+type Query {
+  locations: [Location!]!
+  getMachinesByCode(input: GetMachineByCodeInput!): [Machine]!
+  getMachinesByRegion(input: GetMachineByRegionInput!): [Machine]!
+}
+
+type User {
+  name: String!
+}
+
+type Authentication {
+  user: User!
+  accessToken: String!
+  refreshToken: String!
+  expiredAt: Time!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): Authentication!
+}
