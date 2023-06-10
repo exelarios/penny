@@ -13,6 +13,11 @@ type Authentication struct {
 	ExpiredAt    time.Time `json:"expiredAt"`
 }
 
+type Coordinate struct {
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+}
+
 type GetMachineByCodeInput struct {
 	Area int `json:"area"`
 }
@@ -33,11 +38,12 @@ type LoginInput struct {
 }
 
 type Machine struct {
-	Name     string    `json:"name"`
-	Location string    `json:"location"`
-	City     string    `json:"city"`
-	Designs  string    `json:"designs"`
-	Updated  time.Time `json:"updated"`
+	Name       string      `json:"name"`
+	Location   string      `json:"location"`
+	City       string      `json:"city"`
+	Designs    string      `json:"designs"`
+	Updated    time.Time   `json:"updated"`
+	Coordinate *Coordinate `json:"coordinate,omitempty"`
 }
 
 type User struct {

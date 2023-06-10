@@ -4,12 +4,18 @@
 
 scalar Time
 
+type Coordinate {
+  latitude: Float!
+  longitude: Float!
+}
+
 type Machine {
   name: String!
   location: String!
   city: String!
   designs: String!
   updated: Time!
+  coordinate: Coordinate
 }
 
 type Location {
