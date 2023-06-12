@@ -1,0 +1,15 @@
+scalar Time
+
+input GetMachineByCodeInput {
+  area: Int!
+}
+
+input GetMachineByRegionInput {
+  region: String!
+}
+
+type Query {
+  locations: [Location!]!
+  getMachinesByCode(input: GetMachineByCodeInput!): [Machine]!
+  getMachinesByRegion(input: GetMachineByRegionInput!): [Machine]!
+}

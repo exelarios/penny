@@ -1,33 +1,32 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"log"
-	"os"
+	"main/models"
 
-	"github.com/go-pg/pg/v10"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func createSchema() error {
+func createSchema(db *gorm.DB) error {
+
+	db.AutoMigrate(&models.Machine{})
+	db.AutoMigrate(&models.Location{})
 
 	return nil
 }
 
-func Setup() *pg.DB {
-	dbCredentials, err := pg.ParseURL(os.Getenv("DB_HOST"))
+func Setup(databaseURL string) *gorm.DB {
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN: databaseURL,
+	}), &gorm.Config{})
+
 	if err != nil {
 		log.Fatalf("Failed to parse database credentials.\n %s", err.Error())
 	}
 
-	db := pg.Connect(dbCredentials)
-	defer db.Close()
-
-	fmt.Println("Pinging database.. ")
-	pingError := db.Ping(context.Background())
-	if pingError != nil {
-		log.Fatalf("Failed to make a connection to the requested database.\n %s", pingError.Error())
-	}
+	createSchema(db)
 
 	fmt.Println("Sucessfully connected to database.. 🥳")
 

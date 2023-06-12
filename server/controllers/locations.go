@@ -3,17 +3,17 @@ package controllers
 import (
 	"fmt"
 	"main/constants"
-	"main/model"
+	"main/graph/model"
 	"net/url"
 	"regexp"
 	"strconv"
 
-	"github.com/go-pg/pg/v10"
 	"github.com/gocolly/colly"
+	"gorm.io/gorm"
 )
 
 type LocationController struct {
-	Database *pg.DB
+	Database *gorm.DB
 }
 
 func (l *LocationController) GetLocations() ([]*model.Location, error) {

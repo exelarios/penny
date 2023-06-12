@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graph/*.graphqls
+  - schema/*.graphqls
 
 # Where should the generated server code go?
 exec:
@@ -14,13 +14,13 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: model/models_generated.go
+  filename: graph/model/models_generated.go
   package: model
 
 # Where should the resolver implementations go?
 resolver:
-  package: graph
-  filename_template: "{name}.resolvers.go"
+  package: resolvers
+  filename_template: "{name}.go"
   omit_template_comment: true
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
@@ -59,7 +59,7 @@ resolver:
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind:
+# autobind:
 #  - "server/graph/model"
 
 # This section declares type mapping between the GraphQL and go type systems
@@ -67,15 +67,20 @@ autobind:
 # The first line in each type will be used as defaults for resolver arguments and
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
-models:
-  ID:
-    model:
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
-  Int:
-    model:
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+# models:
+#   Machine:
+#     model: model/Machine
+#   Location:
+#     model: model/Location
+  
+#   ID:
+#     model:
+#       - github.com/99designs/gqlgen/graphql.ID
+#       - github.com/99designs/gqlgen/graphql.Int
+#       - github.com/99designs/gqlgen/graphql.Int64
+#       - github.com/99designs/gqlgen/graphql.Int32
+#   Int:
+#     model:
+#       - github.com/99designs/gqlgen/graphql.Int
+#       - github.com/99designs/gqlgen/graphql.Int64
+#       - github.com/99designs/gqlgen/graphql.Int32

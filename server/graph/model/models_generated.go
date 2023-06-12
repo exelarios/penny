@@ -43,9 +43,12 @@ type Machine struct {
 	City       string      `json:"city"`
 	Designs    string      `json:"designs"`
 	Updated    time.Time   `json:"updated"`
+	Area       int         `json:"area"`
+	Region     string      `json:"region"`
 	Coordinate *Coordinate `json:"coordinate,omitempty"`
 }
 
 type User struct {
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }

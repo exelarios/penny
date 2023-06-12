@@ -1,0 +1,21 @@
+type Coordinate {
+  latitude: Float!
+  longitude: Float!
+}
+
+type Machine {
+  name: String!
+  location: String!
+  city: String!
+  designs: String!
+  updated: Time!
+  area: Int!
+  region: String!
+  coordinate: Coordinate
+}
+
+type Location {
+  name: String!
+  url: String!
+  area: Int!
+}

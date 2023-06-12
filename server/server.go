@@ -31,7 +31,7 @@ func main() {
 		port = defaultPort
 	}
 
-	database := db.Setup()
+	database := db.Setup(os.Getenv("DB_HOST"))
 
 	gql := handler.NewDefaultServer(
 		graph.NewExecutableSchema(graph.Config{

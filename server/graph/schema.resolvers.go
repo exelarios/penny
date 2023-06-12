@@ -7,7 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
-	"main/model"
+	"main/graph/model"
 )
 
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Authentication, error) {
