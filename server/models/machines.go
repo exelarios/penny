@@ -10,9 +10,10 @@ type Coordinate struct {
 }
 
 type Location struct {
-	Name string `json:"name" gorm:"primaryKey"`
-	URL  string `json:"url"`
-	Area int    `json:"area"`
+	Name       string      `json:"name" gorm:"primaryKey"`
+	URL        string      `json:"url"`
+	Area       int         `json:"area"`
+	Coordinate *Coordinate `json:"coordinate" gorm:"embedded; embeddedPrefix:coordinate_"`
 }
 
 type Machine struct {

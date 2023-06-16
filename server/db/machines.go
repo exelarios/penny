@@ -14,7 +14,7 @@ func FindMachine(db *gorm.DB, name string, location string) (*models.Machine, er
 		Location: location,
 	}
 
-	result := db.First(machine)
+	result := db.Model(&models.Machine{}).First(machine)
 
 	return machine, result.Error
 }
@@ -26,7 +26,7 @@ func DoesMachineExist(db *gorm.DB, name string, location string) (bool, error) {
 		Location: location,
 	}
 
-	result := db.Limit(1).First(machine)
+	result := db.Model(&models.Machine{}).Limit(1).Where(machine).First(machine)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return false, nil
@@ -53,7 +53,7 @@ func InsertMachine(db *gorm.DB, input *model.Machine) error {
 		Coordinate: coordinate,
 	}
 
-	result := db.FirstOrCreate(machine)
+	result := db.Model(&models.Machine{}).FirstOrCreate(machine)
 
 	return result.Error
 }

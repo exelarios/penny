@@ -1,11 +1,12 @@
 import { Tabs } from "expo-router";
 
 function Layout() {
+
   return (
     <Tabs
       initialRouteName="Explore"
       screenOptions={{
-      headerShown: false
+        headerShown: false
       }}>
     </Tabs>
   );

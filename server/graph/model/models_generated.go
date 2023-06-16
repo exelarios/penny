@@ -27,9 +27,10 @@ type GetMachineByRegionInput struct {
 }
 
 type Location struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-	Area int    `json:"area"`
+	Name       string      `json:"name"`
+	URL        string      `json:"url"`
+	Area       int         `json:"area"`
+	Coordinate *Coordinate `json:"coordinate"`
 }
 
 type LoginInput struct {

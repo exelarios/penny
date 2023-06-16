@@ -18,4 +18,5 @@ type Location {
   name: String!
   url: String!
   area: Int!
+  coordinate: Coordinate!
 }

@@ -58,9 +58,10 @@ type ComplexityRoot struct {
 	}
 
 	Location struct {
-		Area func(childComplexity int) int
-		Name func(childComplexity int) int
-		URL  func(childComplexity int) int
+		Area       func(childComplexity int) int
+		Coordinate func(childComplexity int) int
+		Name       func(childComplexity int) int
+		URL        func(childComplexity int) int
 	}
 
 	Machine struct {
@@ -162,6 +163,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Location.Area(childComplexity), true
+
+	case "Location.coordinate":
+		if e.complexity.Location.Coordinate == nil {
+			break
+		}
+
+		return e.complexity.Location.Coordinate(childComplexity), true
 
 	case "Location.name":
 		if e.complexity.Location.Name == nil {
@@ -397,6 +405,7 @@ type Location {
   name: String!
   url: String!
   area: Int!
+  coordinate: Coordinate!
 }`, BuiltIn: false},
 	{Name: "../schema/mutation.graphqls", Input: `type Mutation {
   login(input: LoginInput!): Authentication!
@@ -923,6 +932,56 @@ func (ec *executionContext) fieldContext_Location_area(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Location_coordinate(ctx context.Context, field graphql.CollectedField, obj *model.Location) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Location_coordinate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Coordinate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Coordinate)
+	fc.Result = res
+	return ec.marshalNCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Location_coordinate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Location",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "latitude":
+				return ec.fieldContext_Coordinate_latitude(ctx, field)
+			case "longitude":
+				return ec.fieldContext_Coordinate_longitude(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Coordinate", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Machine_name(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Machine_name(ctx, field)
 	if err != nil {
@@ -1388,6 +1447,8 @@ func (ec *executionContext) fieldContext_Query_locations(ctx context.Context, fi
 				return ec.fieldContext_Location_url(ctx, field)
 			case "area":
 				return ec.fieldContext_Location_area(ctx, field)
+			case "coordinate":
+				return ec.fieldContext_Location_coordinate(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Location", field.Name)
 		},
@@ -3750,6 +3811,13 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "coordinate":
+
+			out.Values[i] = ec._Location_coordinate(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4365,6 +4433,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx context.Context, sel ast.SelectionSet, v *model.Coordinate) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Coordinate(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
