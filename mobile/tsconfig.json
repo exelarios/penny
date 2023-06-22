@@ -6,7 +6,8 @@
       "@/components/*": ["./components/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/types": ["./types"],
-      "@/context": ["./context"]
+      "@/context/*": ["./context/*"],
+      "@/assets/*": ["./assets/*"]
     }
   },
   "extends": "expo/tsconfig.base",

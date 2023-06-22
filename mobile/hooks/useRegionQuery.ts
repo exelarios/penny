@@ -33,10 +33,16 @@ function useRegionQuery() {
     queryFn: getRegionQuery,
     select: (payload) => {
       return payload.locations;
-    }
+    },
+    staleTime: 5000,
   });
 
-  return query;
+  const { data: regions, ...regionsUtils } = query;
+
+  return {
+    regions,
+    regionsUtils
+  };
 }
 
 export default useRegionQuery;

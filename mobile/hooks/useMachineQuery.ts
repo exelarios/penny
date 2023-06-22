@@ -40,10 +40,16 @@ function useMachineQuery(region: number) {
     queryFn: getMachinesQuery,
     select: (payload) => {
       return payload.getMachinesByCode
-    }
+    },
+    staleTime: 5000
   });
 
-  return query;
+  const { data: machines, ...machinesUtils} = query;
+
+  return {
+    machines,
+    machinesUtils
+  }
 }
 
 export default useMachineQuery;

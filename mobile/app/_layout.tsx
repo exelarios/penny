@@ -18,7 +18,7 @@ function Layout() {
 
   useEffect(() => {
     router.replace("/home");
-  }, []);
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>

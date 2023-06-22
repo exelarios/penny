@@ -1,11 +1,9 @@
-import { Dispatch, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { StyleSheet, View, Pressable, Image, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import { Dispatch, createContext, useCallback, useRef , useEffect, useMemo, useState } from "react";
+import { StyleSheet, View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 
-import { FontAwesome } from '@expo/vector-icons';
 import Text from "@/components/Text";
-import { BottomSheet, BottomSheetFlatList, BottomSheetView } from "@/components/BottomSheet";
+import RegionsBottomSheet from "@/components/RegionsBottomSheet";
 import useRegionQuery from "@/hooks/useRegionQuery";
 import useMachineQuery from "@/hooks/useMachineQuery";
 import { Machine, MachineGroup, MachineRegion } from "@/types";
@@ -19,53 +17,6 @@ type ExploreContext = {
 
 const ExploreContext = createContext<ExploreContext | undefined>(undefined);
 
-type RenderItemProps = {
-  item: MachineRegion
-}
-
-function RegionBottomSheet() {
-  const { regions, dispatch } = useMarkerContext();
-
-  const renderItem = useCallback(({ item }: RenderItemProps) => {
-    const handleOnPress = () => {
-      dispatch.setCurrentRegion(item);
-    }
-
-    return (
-      <TouchableOpacity onPress={handleOnPress}>
-        <View style={styles.regionPressableContainer}>
-          <View>
-            <Text variant="h2">{item.name}</Text>
-            <Text>United States</Text>
-          </View>
-        </View>
-        <View style={styles.regionDivider}/>
-      </TouchableOpacity>
-    );
-  }, []);
-
-  return (
-    <BottomSheet>
-      <View style={styles.bottomSheetHeader}>
-        <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-          <Text style={{ fontSize: 30, fontWeight: "bold" }}>
-            Region
-          </Text>
-        </View>
-        <TouchableOpacity>
-          <FontAwesome name="search" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={[{...styles.regionDivider}, { marginVertical: 5, width: "100%" }]}/>
-      <BottomSheetFlatList
-        data={regions}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.area.toString()}
-      />
-    </BottomSheet>
-  );
-}
-
 function Explore() {
   const [camera, setCamera] = useState<Region>({
     latitude: 0,
@@ -74,9 +25,9 @@ function Explore() {
     longitudeDelta: 0
   });
 
-  const regionQuery = useRegionQuery();
+  const { regions, regionsUtils } = useRegionQuery();
 
-  const { currentRegion, regions, dispatch } = useMarkerContext();
+  const { currentRegion, dispatch } = useMarkerContext();
 
   const regionMarkers = useMemo(() => {
     return regions?.map((region) => {
@@ -87,7 +38,7 @@ function Explore() {
       }
 
       const handleOnPress = () => {
-        // setCurrentRegion(region.area);
+        dispatch.setCurrentRegion(region);
       };
 
       return (
@@ -99,7 +50,11 @@ function Explore() {
             longitude: region.coordinate.longitude
           }}>
           <View style={styles.marker}>
-            <Text style={styles.text}>{region.name}</Text>
+            <Image
+              source={require("@/assets/multiple_penny_machine.png")}
+              style={{ width: 50, height: 50 }}
+            />
+            {/* <Text style={styles.text}>{region.name}</Text> */}
           </View>
         </Marker>
       );
@@ -175,9 +130,10 @@ function Explore() {
   // }, [machines, currentRegion]);
 
   useEffect(() => {
-    if (regionQuery.isLoading) return;
+    if (regionsUtils.isLoading) return;
+    console.log('hello');
 
-    dispatch.setRegions(regionQuery.data);
+    // dispatch.setRegions(regionQuery.data);
 
     // const regionInfo = locations.data.filter((l) => l.area === currentRegion);
 
@@ -192,9 +148,9 @@ function Explore() {
     //   latitudeDelta: 10,
     //   longitudeDelta: 10
     // });
-  }, [regionQuery.data]);
+  }, [regionsUtils.isLoading ]);
 
-  if (regionQuery.isLoading) {
+  if (regionsUtils.isLoading) {
     return (
       <View>
         <Text>Loading Map.</Text>
@@ -206,12 +162,14 @@ function Explore() {
     <View style={styles.container}>
       {/* <Header/> */}
       <MapView
+        showsUserLocation
+        showsTraffic={false}
         region={camera}
         style={styles.map}>
           {regionMarkers}
           {/* {machineMarkers} */}
       </MapView>
-      <RegionBottomSheet/>
+      <RegionsBottomSheet/>
     </View>
   );
 }
@@ -226,10 +184,11 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   marker: {
-    backgroundColor: "black",
-    borderRadius: 10,
-    width: "100%",
-    height: "100%"
+    borderRadius: 50,
+    backgroundColor: "#f2f2f2",
+    padding: 3,
+    borderWidth: 3,
+    borderColor: "#a1a1a1"
   },
   text: {
     fontSize: 10,
@@ -241,37 +200,6 @@ const styles = StyleSheet.create({
     backgroundColor: "f2f2f2",
     zIndex: 1
   },
-  regionIcon: {
-    height: 50,
-    width: 50,
-    borderRadius: 50
-  },
-  regionPressableContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    margin: 10,
-    alignSelf: "center",
-    width: "90%"
-  },
-  regionDivider: {
-    width: "90%",
-    alignSelf: "center",
-    marginHorizontal: "2%",
-    backgroundColor: "#eaeaea",
-    height: 1,
-    borderRadius: 10
-  },
-  bottomSheetHeader: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent:"space-between",
-    marginHorizontal: "2%",
-    alignItems: "center",
-    width: "90%",
-    alignSelf: "center"
-  }
 });
 
 export default Explore;

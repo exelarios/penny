@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useReducer } from "react";
 import { Machine, MachineGroup, MachineRegion } from "@/types";
+import useRegionQuery from "@/hooks/useRegionQuery";
 
 interface MarkerState {
   currentRegion: MachineRegion;
@@ -100,9 +101,9 @@ export function MarkerProvider(props: MarkerProvider) {
   const value = useMemo(() => {
     return {
       ...state,
-      dispatch: markerUtils(dispatch)
+      dispatch: markerUtils(dispatch),
     }
-  }, [state]);
+  }, [state, dispatch, markerUtils]);
 
   return (
     <MarkerContext.Provider value={value}>
