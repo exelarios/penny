@@ -11,3 +11,5 @@ function Screen(props: ScreenProps) {
     </SafeAreaView>
   )
 }
+
+export default Screen;

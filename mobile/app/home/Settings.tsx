@@ -1,10 +1,11 @@
-import { SafeAreaView, Text } from "react-native";
+import { Text } from "react-native";
+import Screen from "@/components/Screen";
 
 function Settings() {
   return (
-    <SafeAreaView>
+    <Screen>
       <Text>settings</Text>
-    </SafeAreaView>
+    </Screen>
   );
 }
 

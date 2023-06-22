@@ -5,6 +5,7 @@ import {
   QueryClient,
   QueryClientProvider
 } from "@tanstack/react-query";
+import { MarkerProvider } from "@/context/MarkerContext";
 
 export const unstable_settings = {
   initialRouteName: "home",
@@ -21,7 +22,9 @@ function Layout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Slot/>
+      <MarkerProvider>
+        <Slot/>
+      </MarkerProvider>
     </QueryClientProvider>
   );
 }

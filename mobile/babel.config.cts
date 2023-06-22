@@ -6,6 +6,16 @@ module.exports = function(api) {
       require.resolve("expo-router/babel"),
       "react-native-reanimated/plugin",
       "module:react-native-dotenv",
+      [
+        require.resolve('babel-plugin-module-resolver'),
+        {
+          include: ["."],
+          root: ['.'],
+          alias: {
+            '@': '.',
+          },
+        },
+      ],
     ],
   };
 };

@@ -1,94 +1,72 @@
 import { Dispatch, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Text, StyleSheet, View, SafeAreaView, ScrollView, Pressable } from "react-native";
+import { StyleSheet, View, Pressable, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import MapView, { Marker, Region } from "react-native-maps";
-import { useQuery } from "@tanstack/react-query";
-import { request, gql } from "graphql-request";
 
-import DropDownPicker, { RenderListItemPropsInterface } from "react-native-dropdown-picker";
-
-import { Entypo } from '@expo/vector-icons';
-import useLocationQuery from "../../hooks/useLocationQuery";
-
-type Coordinate = {
-  latitude: number;
-  longitude: number;
-}
-
-type Location = {
-  area: number;
-  name: string;
-  coordinate: Coordinate;
-}
+import { FontAwesome } from '@expo/vector-icons';
+import Text from "@/components/Text";
+import { BottomSheet, BottomSheetFlatList, BottomSheetView } from "@/components/BottomSheet";
+import useRegionQuery from "@/hooks/useRegionQuery";
+import useMachineQuery from "@/hooks/useMachineQuery";
+import { Machine, MachineGroup, MachineRegion } from "@/types";
+import { useMarkerContext } from "@/context/MarkerContext";
 
 type ExploreContext = {
   region: number;
   setRegion: Dispatch<React.SetStateAction<number>>;
-  locations: Location[];
+  locations: MachineRegion[];
 }
 
 const ExploreContext = createContext<ExploreContext | undefined>(undefined);
 
-function useExploreContext() {
-  const context = useContext(ExploreContext);
-  if (context === undefined) {
-    Error("useExploreContext must be used inside of Explore.Provider");
-  }
-
-  return context;
+type RenderItemProps = {
+  item: MachineRegion
 }
 
-function Header() {
-  const { region, setRegion, locations } = useExploreContext();
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [regionName, setRegionName] = useState("");
+function RegionBottomSheet() {
+  const { regions, dispatch } = useMarkerContext();
 
-  const items = useMemo(() => {
-    return locations?.map((location) => {
-      return {
-        label: location.name,
-        value: location.area
-      }
-    });
-  }, [locations]);
-
-  const Item = (props: RenderListItemPropsInterface<number>) => {
-    const { label, value } = props.item;
-
-    const onPress = useCallback(() => {
-      setRegionName(label);
-      props.onPress(value);
-      setRegion(value);
-    }, [value, regionName, props.onPress]);
+  const renderItem = useCallback(({ item }: RenderItemProps) => {
+    const handleOnPress = () => {
+      dispatch.setCurrentRegion(item);
+    }
 
     return (
-      <Pressable onPress={onPress}>
-        <Text>{label}</Text>
-      </Pressable>
+      <TouchableOpacity onPress={handleOnPress}>
+        <View style={styles.regionPressableContainer}>
+          <View>
+            <Text variant="h2">{item.name}</Text>
+            <Text>United States</Text>
+          </View>
+        </View>
+        <View style={styles.regionDivider}/>
+      </TouchableOpacity>
     );
-  };
+  }, []);
 
   return (
-    <SafeAreaView style={styles.section}>
-      <Text>Explore</Text>
-      <DropDownPicker
-        placeholder={regionName.length !== 0 ? regionName : "Select a region"}
-        modalTitle="Region"
-        modalAnimationType="slide"
-        listMode="MODAL"
-        open={isPickerOpen}
-        value={region}
-        setValue={setRegion}
-        items={items}
-        setOpen={setIsPickerOpen}
-        renderListItem={(props) => <Item {...props}/>}
+    <BottomSheet>
+      <View style={styles.bottomSheetHeader}>
+        <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ fontSize: 30, fontWeight: "bold" }}>
+            Region
+          </Text>
+        </View>
+        <TouchableOpacity>
+          <FontAwesome name="search" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+      <View style={[{...styles.regionDivider}, { marginVertical: 5, width: "100%" }]}/>
+      <BottomSheetFlatList
+        data={regions}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.area.toString()}
       />
-    </SafeAreaView>
+    </BottomSheet>
   );
 }
 
 function Explore() {
-  const [currentRegion, setCurrentRegion] = useState<number>(-1);
   const [camera, setCamera] = useState<Region>({
     latitude: 0,
     longitude: 0,
@@ -96,55 +74,127 @@ function Explore() {
     longitudeDelta: 0
   });
 
-  const locations = useLocationQuery();
+  const regionQuery = useRegionQuery();
 
-  const value = useMemo(() => {
-    return {
-      region: currentRegion,
-      setRegion: setCurrentRegion,
-      locations: locations.data
-    }
-  }, [currentRegion, locations.data]);
+  const { currentRegion, regions, dispatch } = useMarkerContext();
 
-  const markers = useMemo(() => {
-    return locations.data?.map((location) => {
+  const regionMarkers = useMemo(() => {
+    return regions?.map((region) => {
+
+      // Hide the region currentRegion marker.
+      if (currentRegion && region.area === currentRegion.area) {
+        return null;
+      }
+
       const handleOnPress = () => {
-        setCurrentRegion(location.area);
+        // setCurrentRegion(region.area);
       };
 
       return (
         <Marker
-          key={location.area}
+          key={region.area}
           onPress={handleOnPress}
           coordinate={{
-            latitude: location.coordinate.latitude,
-            longitude: location.coordinate.longitude}
-          }>
+            latitude: region.coordinate.latitude,
+            longitude: region.coordinate.longitude
+          }}>
           <View style={styles.marker}>
-            <Text style={styles.text}>{location.name}</Text>
+            <Text style={styles.text}>{region.name}</Text>
           </View>
         </Marker>
       );
     });
-  }, [locations, currentRegion]);
+  }, [regions]);
+
+  // const machinesBasedOnCity = useCallback(() => {
+  //   const noCoordinates = [];
+  //   let cities = new Set<string>();
+  //   const group: Machine[] = [];
+
+  //   for (const machine of machines.data) {
+  //     // If the machine doesn't have any coordinates, we will just ignore them.
+  //     if (machine.coordinate === null) {
+  //       noCoordinates.push(`${machine.name}, ${machine.location}`);
+  //       continue;
+  //     }
+  //     cities.add(machine.city);
+  //   }
+  //   console.log(cities);
+
+  //   const machineCityNames = Array.from(cities);
+  //   const output: MachineGroup[] = machineCityNames.map((city) => {
+  //     let latitude = 0;
+  //     let longitude = 0;
+  //     let amountOfMachines = 0;
+
+  //     for (const machine of machines.data) {
+  //       if (machine.coordinate === null) continue;
+
+  //       if (machine.city === city) {
+  //         latitude = latitude + machine.coordinate.latitude;
+  //         longitude = longitude + machine.coordinate.longitude;
+  //         amountOfMachines = amountOfMachines + 1;
+  //         group.push(machine);
+  //       }
+  //     }
+
+  //     latitude = latitude / amountOfMachines;
+  //     longitude = longitude / amountOfMachines;
+
+  //     return {
+  //       name: city,
+  //       group: group,
+  //       coordinate: {
+  //         latitude,
+  //         longitude
+  //       },
+  //     }
+  //   })
+
+  //   console.log("No coordinates:\n", noCoordinates.join("\n"));
+
+  //   return output;
+  // }, [machines?.data]);
+
+  // const machineMarkers = useMemo(() => {
+  //   if (machines?.data === undefined) return;
+
+  //   const cities = machinesBasedOnCity();
+
+  //   return cities.map((city) => {
+  //     return (
+  //       <Marker
+  //         key={city.name}
+  //         coordinate={city.coordinate}>
+  //           <View style={styles.marker}>
+  //             <Text style={styles.text}>{city.name}</Text>
+  //           </View>
+  //       </Marker>
+  //     )
+  //   })
+  // }, [machines, currentRegion]);
 
   useEffect(() => {
-    const regionInfo = locations.data.filter((l) => l.area === currentRegion);
+    if (regionQuery.isLoading) return;
 
-    // Failed to find any region with the given region's code.
-    if (regionInfo.length === 0) return;
+    dispatch.setRegions(regionQuery.data);
 
-    const targetRegion = regionInfo[0];
+    // const regionInfo = locations.data.filter((l) => l.area === currentRegion);
 
-    setCamera({
-      latitude: targetRegion.coordinate.latitude,
-      longitude: targetRegion.coordinate.longitude,
-      latitudeDelta: 10,
-      longitudeDelta: 10
-    });
-  }, [currentRegion]);
+    // // Failed to find any region with the given region's code.
+    // if (regionInfo.length === 0) return;
 
-  if (locations.isLoading) {
+    // const targetRegion = regionInfo[0];
+
+    // setCamera({
+    //   latitude: targetRegion.coordinate.latitude,
+    //   longitude: targetRegion.coordinate.longitude,
+    //   latitudeDelta: 10,
+    //   longitudeDelta: 10
+    // });
+  }, [regionQuery.data]);
+
+  if (regionQuery.isLoading) {
     return (
       <View>
         <Text>Loading Map.</Text>
@@ -153,16 +203,16 @@ function Explore() {
   }
   
   return (
-    <ExploreContext.Provider value={value}>
-      <SafeAreaView style={styles.container}>
-        <Header/>
-        <MapView
-          region={camera}
-          style={styles.map}>
-            {markers}
-        </MapView>
-      </SafeAreaView>
-    </ExploreContext.Provider>
+    <View style={styles.container}>
+      {/* <Header/> */}
+      <MapView
+        region={camera}
+        style={styles.map}>
+          {regionMarkers}
+          {/* {machineMarkers} */}
+      </MapView>
+      <RegionBottomSheet/>
+    </View>
   );
 }
 
@@ -177,6 +227,7 @@ const styles = StyleSheet.create({
   },
   marker: {
     backgroundColor: "black",
+    borderRadius: 10,
     width: "100%",
     height: "100%"
   },
@@ -186,9 +237,40 @@ const styles = StyleSheet.create({
     color: "white"
   },
   section: {
-    backgroundColor: "white",
-    borderRadius: 20,
+    margin: "2%",
+    backgroundColor: "f2f2f2",
     zIndex: 1
+  },
+  regionIcon: {
+    height: 50,
+    width: 50,
+    borderRadius: 50
+  },
+  regionPressableContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    margin: 10,
+    alignSelf: "center",
+    width: "90%"
+  },
+  regionDivider: {
+    width: "90%",
+    alignSelf: "center",
+    marginHorizontal: "2%",
+    backgroundColor: "#eaeaea",
+    height: 1,
+    borderRadius: 10
+  },
+  bottomSheetHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent:"space-between",
+    marginHorizontal: "2%",
+    alignItems: "center",
+    width: "90%",
+    alignSelf: "center"
   }
 });
 

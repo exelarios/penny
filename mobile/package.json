@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start -c",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
+    "@gorhom/bottom-sheet": "^4.4.7",
+    "@ngrok/ngrok": "^0.5.2",
     "@tanstack/react-query": "^4.29.13",
     "@types/react": "~18.0.27",
     "expo": "~48.0.18",
@@ -34,7 +36,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "@types/react-native": "^0.72.2"
+    "@types/react-native": "^0.72.2",
+    "babel-plugin-module-resolver": "^5.0.0"
   },
   "resolutions": {
     "metro": "0.76.0",
