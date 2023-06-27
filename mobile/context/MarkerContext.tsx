@@ -1,26 +1,23 @@
 import { createContext, useContext, useMemo, useReducer } from "react";
 import { Machine, MachineGroup, MachineRegion } from "@/types";
-import useRegionQuery from "@/hooks/useRegionQuery";
 
 interface MarkerState {
   currentRegion: MachineRegion;
-  regions: MachineRegion[];
-  cities: MachineGroup[];
+  currentMachine: Machine;
   machines: Machine[];
 }
 
 type Action = {
-  type: "SET_REGIONS"
-  payload: MachineRegion[]
-} | {
-  type: "SET_CITIES"
-  payload: MachineGroup[]
-} | {
   type: "SET_MACHINES"
   payload: Machine[]
 } | {
   type: "SET_CURRENT_REGION"
   payload: MachineRegion
+} | {
+  type: "CLEAR_MACHINES"
+} | {
+  type: "SELECT_CURRENT_MACHINE",
+  payload: Machine
 }
 
 type MarkerContext = MarkerState & {
@@ -29,28 +26,35 @@ type MarkerContext = MarkerState & {
 
 const MarkerContext = createContext<MarkerContext | undefined>(undefined);
 
-function reducer(state: MarkerState, action: Action) {
+function reducer(state: MarkerState, action: Action): MarkerState {
   switch(action.type) {
-    case "SET_REGIONS": {
+    case "SET_CURRENT_REGION":
+      const currentRegion = action.payload;
       return {
         ...state,
-        regions: action.payload
-      };
-    }
-    case "SET_CITIES": {
+        currentRegion,
+        currentMachine: null,
+        machines: []
+      }
+    case "SET_MACHINES":
       return {
         ...state,
-        cities: action.payload
-      };
-    }
-    case "SET_CURRENT_REGION": {
+        machines: action.payload,
+        currentMachine: null
+      }
+    case "CLEAR_MACHINES":
       return {
         ...state,
-        currentRegion: action.payload
+        machines: [],
+        currentMachine: null
+      }
+    case "SELECT_CURRENT_MACHINE": {
+      return {
+        ...state,
+        currentMachine: action.payload
       }
     }
   }
-  throw new Error(`Invoked ${action.type}, an invaild action type.`);
 }
 
 interface MarkerProvider {
@@ -59,39 +63,44 @@ interface MarkerProvider {
 
 const initialState: MarkerState = {
   currentRegion: null,
-  regions: [],
-  cities: [],
+  currentMachine: null,
   machines: []
 }
 
-const sortAlphabetically = (a: MachineRegion, b: MachineRegion) => {
-  if (a.name < b.name) {
-    return -1;
-  }
-  if (a.name > b.name) {
-    return 1;
-  }
-  return 0;
-}
-
 function markerUtils(dispatch: React.Dispatch<Action>) {
-  const setRegions = (payload: MachineRegion[]) => {
-    dispatch({
-      type: "SET_REGIONS",
-      payload: payload.sort(sortAlphabetically)
-    });
-  }
 
   const setCurrentRegion = (payload: MachineRegion) => {
     dispatch({
       type: "SET_CURRENT_REGION",
-      payload
+      payload: payload
+    });
+  }
+
+  const selectMachines = (payload: Machine[]) => {
+    dispatch({
+      type: "SET_MACHINES",
+      payload: payload
+    });
+  }
+
+  const clearMachines = () => {
+    dispatch({
+      type: "CLEAR_MACHINES"
+    });
+  }
+
+  const selectCurrentMachine = (payload: Machine) => {
+    dispatch({
+      type: "SELECT_CURRENT_MACHINE",
+      payload: payload
     });
   }
 
   return {
-    setRegions,
-    setCurrentRegion
+    selectMachines,
+    selectCurrentMachine,
+    setCurrentRegion,
+    clearMachines
   }
 }
 

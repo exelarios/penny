@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { GQL_ENDPOINT } from "@env";
 import { MachineRegion } from "@/types";
+import { sortAlphabetically } from "@/utils";
 
 type UseLocationQueryRequest = Promise<{
   locations: MachineRegion[]
@@ -40,7 +41,7 @@ function useRegionQuery() {
   const { data: regions, ...regionsUtils } = query;
 
   return {
-    regions,
+    regions: regions?.sort(sortAlphabetically),
     regionsUtils
   };
 }

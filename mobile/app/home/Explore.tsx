@@ -1,33 +1,118 @@
-import { Dispatch, createContext, useCallback, useRef , useEffect, useMemo, useState } from "react";
-import { StyleSheet, View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
-import MapView, { Marker, Region } from "react-native-maps";
+import { useCallback, useRef, useMemo, useState } from "react";
+import { StyleSheet, View, Image, SafeAreaView } from "react-native";
+import MapView, { Animated, PROVIDER_GOOGLE, Marker, Region } from "react-native-maps";
 
 import Text from "@/components/Text";
+import MachineDetailsSheet from "@/components/MachineDetailsSheet";
+import GroupRegionBottomSheet from "@/components/GroupRegionBottomSheet";
 import RegionsBottomSheet from "@/components/RegionsBottomSheet";
 import useRegionQuery from "@/hooks/useRegionQuery";
-import useMachineQuery from "@/hooks/useMachineQuery";
-import { Machine, MachineGroup, MachineRegion } from "@/types";
-import { useMarkerContext } from "@/context/MarkerContext";
 
-type ExploreContext = {
-  region: number;
-  setRegion: Dispatch<React.SetStateAction<number>>;
-  locations: MachineRegion[];
+import { useMachineByCitiesQuery } from "@/hooks/useMachineQuery";
+import { useMarkerContext } from "@/context/MarkerContext";
+import { Ionicons } from '@expo/vector-icons';
+import { ExploreProvider, useExploreContext } from "@/context/ExploreContext";
+import { Machine } from "@/types";
+
+import CityMachineIcon from "@/assets/city-machines.png";
+import RegionMachineIcon from "@/assets/region-machines.png";
+import MachineIcon from "@/assets/machine.png";
+import useMap from "@/hooks/useMap";
+
+function Header() {
+  const { regions } = useRegionQuery();
+  const { currentRegion, machines, dispatch } = useMarkerContext();
+  const map = useMap();
+
+  const handleBackButton = useCallback(() => {
+    if (currentRegion !== null && machines.length !== 0) {
+      dispatch.clearMachines();
+      map.setRegion(currentRegion.coordinate);
+    } else {
+      dispatch.setCurrentRegion(null)
+      const coordinates = regions?.map(region => {
+        return region.coordinate;
+      });
+      map.fitRegion(coordinates);
+    }
+  }, [currentRegion, machines, regions]);
+
+  return (
+    <SafeAreaView style={styles.headerContainer}>
+      <View style={[styles.dropShadow, {
+        backgroundColor: "#f2f2f2",
+        borderRadius: 50,
+        padding: "1%",
+        alignItems: "center" 
+      }]}>
+        <Ionicons onPress={handleBackButton} name="arrow-back" size={24} color="black" />
+      </View>
+      <View style={[styles.dropShadow, styles.headerTitle]}>
+        <Text variant="h2">{currentRegion.name}</Text>
+      </View>
+    </SafeAreaView>
+  );
 }
 
-const ExploreContext = createContext<ExploreContext | undefined>(undefined);
+function Overlay() {
+  const { currentRegion, currentMachine } = useMarkerContext();
+  // user selects a specifc machine
+  if (!currentRegion) {
+    return (
+      <RegionsBottomSheet/>
+    );
+  }
+
+  if (currentMachine !== null) {
+    return (
+      <>
+        <Header/>
+        <MachineDetailsSheet/>
+      </>
+    );
+  }
+
+  // allow user to choose a city.
+  return (
+    <>
+      <Header/>
+      <GroupRegionBottomSheet/>
+    </>
+  );
+};
+
+type MachineMarkerProps = {
+  details: Machine
+}
+
+function MachineMarker(props: MachineMarkerProps) {
+  const { dispatch } = useMarkerContext();
+  const { details } = props;
+
+  const handleOnPress = useCallback(() => {
+    dispatch.selectCurrentMachine(details)
+  }, []);
+
+  return (
+    <Marker 
+      key={`${details.name} ${details.city}`}
+      onPress={handleOnPress}
+      coordinate={details.coordinate}>
+        <View style={styles.marker}>
+          <Image
+            source={MachineIcon}
+            style={{ width: 50, height: 50 }}
+          />
+        </View>
+    </Marker>
+  );
+}
 
 function Explore() {
-  const [camera, setCamera] = useState<Region>({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0,
-    longitudeDelta: 0
-  });
-
+  const map = useRef<MapView>(null)
   const { regions, regionsUtils } = useRegionQuery();
-
-  const { currentRegion, dispatch } = useMarkerContext();
+  const { currentRegion, machines, dispatch } = useMarkerContext();
+  const { cities } = useMachineByCitiesQuery();
 
   const regionMarkers = useMemo(() => {
     return regions?.map((region) => {
@@ -37,8 +122,13 @@ function Explore() {
         return null;
       }
 
-      const handleOnPress = () => {
+      const handleOnPress = async () => {
         dispatch.setCurrentRegion(region);
+        map.current.animateToRegion({
+          ...region.coordinate,
+          latitudeDelta: 10,
+          longitudeDelta: 10
+        }, 300);
       };
 
       return (
@@ -49,106 +139,85 @@ function Explore() {
             latitude: region.coordinate.latitude,
             longitude: region.coordinate.longitude
           }}>
-          <View style={styles.marker}>
-            <Image
-              source={require("@/assets/multiple_penny_machine.png")}
-              style={{ width: 50, height: 50 }}
-            />
-            {/* <Text style={styles.text}>{region.name}</Text> */}
+          <View style={styles.markerContainer}>
+            <View style={styles.marker}>
+              <Image
+                source={RegionMachineIcon}
+                style={{ width: 50, height: 50 }}
+              />
+            </View>
           </View>
         </Marker>
       );
     });
-  }, [regions]);
+  }, [regions, currentRegion]);
 
-  // const machinesBasedOnCity = useCallback(() => {
-  //   const noCoordinates = [];
-  //   let cities = new Set<string>();
-  //   const group: Machine[] = [];
+  const onRegionChange = useCallback(async (region: Region) => {
+    if (!map.current) return;
+    const position = await map.current.getCamera();
+    // console.log(position.center);
+  }, [map.current]);
 
-  //   for (const machine of machines.data) {
-  //     // If the machine doesn't have any coordinates, we will just ignore them.
-  //     if (machine.coordinate === null) {
-  //       noCoordinates.push(`${machine.name}, ${machine.location}`);
-  //       continue;
-  //     }
-  //     cities.add(machine.city);
-  //   }
-  //   console.log(cities);
+  const citiesMarkers = useMemo(() => {
+    return cities?.map((city) => {
+      // if the city ony has one machine, we'll just render that single machine.
+      if (city.group.length === 1) {
+        return (
+          <MachineMarker
+            key={city.name}
+            details={city.group[0]}
+          />
+        );
+      }
 
-  //   const machineCityNames = Array.from(cities);
-  //   const output: MachineGroup[] = machineCityNames.map((city) => {
-  //     let latitude = 0;
-  //     let longitude = 0;
-  //     let amountOfMachines = 0;
+      const handleOnPress = () => {
+        dispatch.selectMachines(city.group);
 
-  //     for (const machine of machines.data) {
-  //       if (machine.coordinate === null) continue;
+        const coordinates = city.group?.map((machine) => {
+          return machine.coordinate;
+        });
 
-  //       if (machine.city === city) {
-  //         latitude = latitude + machine.coordinate.latitude;
-  //         longitude = longitude + machine.coordinate.longitude;
-  //         amountOfMachines = amountOfMachines + 1;
-  //         group.push(machine);
-  //       }
-  //     }
+        map.current.fitToCoordinates(coordinates, {
+          animated: true,
+          edgePadding: {
+            top: 100,
+            bottom: 100,
+            left: 100,
+            right: 100
+          }
+        });
+      }
 
-  //     latitude = latitude / amountOfMachines;
-  //     longitude = longitude / amountOfMachines;
+      return (
+        <Marker
+          key={city.name}
+          onPress={handleOnPress}
+          coordinate={city.coordinate}>
+            <View style={styles.marker}>
+              <Text
+                style={styles.cityMachineCounter}>
+                {city.group.length}
+              </Text>
+              <Image
+                source={CityMachineIcon}
+                style={{ width: 50, height: 50 }}
+              />
+            </View>
+        </Marker>
+      );
+    });
+  }, [cities, currentRegion, dispatch]);
 
-  //     return {
-  //       name: city,
-  //       group: group,
-  //       coordinate: {
-  //         latitude,
-  //         longitude
-  //       },
-  //     }
-  //   })
-
-  //   console.log("No coordinates:\n", noCoordinates.join("\n"));
-
-  //   return output;
-  // }, [machines?.data]);
-
-  // const machineMarkers = useMemo(() => {
-  //   if (machines?.data === undefined) return;
-
-  //   const cities = machinesBasedOnCity();
-
-  //   return cities.map((city) => {
-  //     return (
-  //       <Marker
-  //         key={city.name}
-  //         coordinate={city.coordinate}>
-  //           <View style={styles.marker}>
-  //             <Text style={styles.text}>{city.name}</Text>
-  //           </View>
-  //       </Marker>
-  //     )
-  //   })
-  // }, [machines, currentRegion]);
-
-  useEffect(() => {
-    if (regionsUtils.isLoading) return;
-    console.log('hello');
-
-    // dispatch.setRegions(regionQuery.data);
-
-    // const regionInfo = locations.data.filter((l) => l.area === currentRegion);
-
-    // // Failed to find any region with the given region's code.
-    // if (regionInfo.length === 0) return;
-
-    // const targetRegion = regionInfo[0];
-
-    // setCamera({
-    //   latitude: targetRegion.coordinate.latitude,
-    //   longitude: targetRegion.coordinate.longitude,
-    //   latitudeDelta: 10,
-    //   longitudeDelta: 10
-    // });
-  }, [regionsUtils.isLoading ]);
+  const machinesMarkers = useMemo(() => {
+    return machines?.map((machine) => {
+      return (
+        <MachineMarker
+          key={`${machine.name} ${machine.city}`}
+          details={machine}
+        />
+      );
+    });
+  }, [machines]);
 
   if (regionsUtils.isLoading) {
     return (
@@ -157,38 +226,53 @@ function Explore() {
       </View>
     );
   }
-  
+
   return (
-    <View style={styles.container}>
-      {/* <Header/> */}
-      <MapView
-        showsUserLocation
-        showsTraffic={false}
-        region={camera}
-        style={styles.map}>
-          {regionMarkers}
-          {/* {machineMarkers} */}
-      </MapView>
-      <RegionsBottomSheet/>
-    </View>
+    <ExploreProvider map={map.current}>
+      <View style={styles.container}>
+        <Animated
+          ref={map}
+          provider={PROVIDER_GOOGLE}
+          onMapReady={() => {}}
+          showsUserLocation
+          showsTraffic={false}
+          // region={region}
+          onRegionChange={onRegionChange}
+          style={styles.map}>
+            {regionMarkers}
+            {currentRegion !== null && machines.length === 0 ? citiesMarkers : machinesMarkers}
+        </Animated>
+        <Overlay/>
+      </View>
+    </ExploreProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: "flex"
+    display: "flex",
   },
   map: {
     width: "100%",
     flexGrow: 1
   },
+  markerContainer: {
+    padding: 10
+  },
   marker: {
     borderRadius: 50,
     backgroundColor: "#f2f2f2",
-    padding: 3,
-    borderWidth: 3,
-    borderColor: "#a1a1a1"
+    padding: 5,
+    overflow: "visible",
+    borderColor: "#e1e1e1",
+    shadowColor: "#000",
+    shadowRadius: 3,
+    shadowOpacity: 0.3,
+    shadowOffset: {
+      width: 1,
+      height: 1
+    }
   },
   text: {
     fontSize: 10,
@@ -200,6 +284,38 @@ const styles = StyleSheet.create({
     backgroundColor: "f2f2f2",
     zIndex: 1
   },
+  headerContainer: {
+    position: "absolute",
+    width: "100%",
+    flex: 1,
+    flexDirection: "row",
+    margin: "3%",
+    alignItems: "center",
+    gap: 15 
+  },
+  headerTitle: {
+    backgroundColor: "#f2f2f2",
+    width: "80%",
+    padding: "2%",
+    borderRadius: 10,
+  },
+  dropShadow: {
+    shadowColor: "#000",
+    shadowRadius: 3,
+    shadowOpacity: 0.3,
+    shadowOffset: {
+      width: 1,
+      height: 1
+    }
+  },
+  cityMachineCounter: {
+    zIndex: 1,
+    fontSize: 20,
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    fontWeight: "bold",
+  }
 });
 
 export default Explore;

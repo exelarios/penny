@@ -1,5 +1,5 @@
 import { useRef, useState, useMemo, useCallback } from "react";
-import { View, StyleSheet, SafeAreaView } from "react-native";
+import { View, StyleSheet, SafeAreaView, Pressable } from "react-native";
 import BottomSheet, { BottomSheetTextInput, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
@@ -9,6 +9,7 @@ import Text from "@/components/Text";
 import { useMarkerContext } from "@/context/MarkerContext";
 import useRegionQuery from "@/hooks/useRegionQuery";
 import { MachineRegion } from "@/types";
+import { useExploreContext } from "@/context/ExploreContext";
 
 type RenderItemProps = {
   item: MachineRegion
@@ -17,6 +18,7 @@ type RenderItemProps = {
 function RegionsBottomSheet() {
   const { dispatch } = useMarkerContext();
   const { regions, regionsUtils } = useRegionQuery();
+  const { map } = useExploreContext();
   const inputRef = useRef<TextInput>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterValue, setFilterValue] = useState("");
@@ -25,9 +27,18 @@ function RegionsBottomSheet() {
     return ["15%", "50%", "90%"];
   }, []);
 
+  const regionsFiltered = useMemo(() => {
+    return regions.filter(region => region.name.toLowerCase().includes(filterValue.toLowerCase()));
+  }, [regions, filterValue]);
+
   const renderItem = useCallback(({ item }: RenderItemProps) => {
     const handleOnPress = () => {
       dispatch.setCurrentRegion(item);
+      map.animateToRegion({
+        ...item.coordinate,
+        latitudeDelta: 10,
+        longitudeDelta: 10
+      }, 300);
     }
 
     return (
@@ -47,11 +58,14 @@ function RegionsBottomSheet() {
     setFilterValue(value);
   }, [filterValue]);
 
-  const handleOnToggleSearch = useCallback(() => {
-    setIsFilterOpen(!isFilterOpen);
-    if (!isFilterOpen) {
-      inputRef.current?.focus();
-    }
+  const handleOnSearchOpen = useCallback(() => {
+    setIsFilterOpen(true);
+    inputRef.current?.focus();
+  }, [isFilterOpen]);
+
+  const handleSearchOnClose = useCallback(() => {
+    setIsFilterOpen(false);
+    inputRef.current?.blur();
   }, [isFilterOpen]);
 
   return (
@@ -66,20 +80,24 @@ function RegionsBottomSheet() {
               Locations
             </Text>
           </View>
-          <TouchableOpacity onPress={handleOnToggleSearch}>
-            <FontAwesome name="search" size={24} color="black" />
-          </TouchableOpacity>
+          <FontAwesome
+            onPress={!isFilterOpen ? handleOnSearchOpen : handleSearchOnClose}
+            name={!isFilterOpen ? "search" : "remove"}
+            size={24}
+            color="black"
+          />
         </View>
         <BottomSheetTextInput
           ref={inputRef}
+          style={[styles.bottomSheetInput, { display: `${isFilterOpen ? "flex" : "none"}` }]}
           onChangeText={handleOnChangeText}
           value={filterValue}
         />
-        <View style={[{...styles.regionDivider}, { marginVertical: 5, width: "100%" }]}/>
+        <View style={[styles.regionDivider, { marginVertical: 5, width: "100%" }]}/>
         {regionsUtils.isLoading ? 
           <Text>Loading . . . </Text>
         : <BottomSheetFlatList
-          data={regions}
+          data={regionsFiltered}
           renderItem={renderItem}
           keyExtractor={(item) => item.area.toString()}
         />
@@ -115,6 +133,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "90%",
     alignSelf: "center"
+  },
+  bottomSheetInput: {
+    fontSize: 30,
+    margin: "2%"
   }
 });
 
