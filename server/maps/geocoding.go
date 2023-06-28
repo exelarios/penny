@@ -53,3 +53,17 @@ func (m *Map) Latlong(address string) (*Coordinate, error) {
 
 	return coordinate, nil
 }
+
+func (m *Map) GetThumbnail(address string) (*string, error) {
+	request, err := m.client.PlacePhoto(context.Background(), &maps.PlacePhotoRequest{
+		PhotoReference: address,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(request.Data)
+
+	return nil, nil
+}

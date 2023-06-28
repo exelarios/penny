@@ -2,33 +2,40 @@ package main
 
 import (
 	"log"
-	"main/db"
 	"os"
 
 	"main/controllers"
+	"main/db"
 
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
 func reconcile(db *gorm.DB) {
-	locations := &controllers.LocationController{
-		Database: db,
-	}
-
-	// machines := &controllers.MachineController{
+	// locations := &controllers.LocationController{
 	// 	Database: db,
 	// }
 
-	// machineError := machines.Scrap(45)
-	// if machineError != nil {
-	// 	panic(machineError)
+	machines := &controllers.MachineController{
+		Database: db,
+	}
+
+	// data, err := machines.Scrap(45)
+	// if err != nil {
+	// 	panic(err)
 	// }
 
-	err := locations.Scrap()
+	// fmt.Println(data)
+
+	err := machines.Migrate(45)
 	if err != nil {
 		panic(err)
 	}
+
+	// err := locations.Scrap()
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
 
 func setupDotEnv() {

@@ -3,15 +3,27 @@ type Coordinate {
   longitude: Float!
 }
 
-type Machine {
+type Device {
   name: String!
-  location: String!
+  designs: Int!
+  deviceType: String!
+  machineID: Int!
+}
+
+type Machine {
+  id: Int!
+  name: String!
+  address: String
+  country: String!
+  zipCode: String
+  website: String
+  phone: String
   city: String!
-  designs: String!
-  updated: Time!
+  status: String
   area: Int!
-  region: String!
+  comments: String!
   coordinate: Coordinate
+  devices: [Device!]
 }
 
 type MachineGroup {

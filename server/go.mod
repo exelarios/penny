@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/99designs/gqlgen v0.17.31
-	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/gocolly/colly v1.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/vektah/gqlparser/v2 v2.5.1

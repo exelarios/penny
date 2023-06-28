@@ -13,6 +13,7 @@ func createSchema(db *gorm.DB) error {
 
 	db.AutoMigrate(&models.Machine{})
 	db.AutoMigrate(&models.Location{})
+	db.AutoMigrate(&models.Device{})
 
 	return nil
 }

@@ -18,6 +18,13 @@ type Coordinate struct {
 	Longitude float64 `json:"longitude"`
 }
 
+type Device struct {
+	Name       string `json:"name"`
+	Designs    int    `json:"designs"`
+	DeviceType string `json:"deviceType"`
+	MachineID  int    `json:"machineID"`
+}
+
 type GetMachineByCodeInput struct {
 	Area int `json:"area"`
 }
@@ -39,14 +46,25 @@ type LoginInput struct {
 }
 
 type Machine struct {
+	ID         int         `json:"id"`
 	Name       string      `json:"name"`
-	Location   string      `json:"location"`
+	Address    *string     `json:"address,omitempty"`
+	Country    string      `json:"country"`
+	ZipCode    *string     `json:"zipCode,omitempty"`
+	Website    *string     `json:"website,omitempty"`
+	Phone      *string     `json:"phone,omitempty"`
 	City       string      `json:"city"`
-	Designs    string      `json:"designs"`
-	Updated    time.Time   `json:"updated"`
+	Status     *string     `json:"status,omitempty"`
 	Area       int         `json:"area"`
-	Region     string      `json:"region"`
+	Comments   string      `json:"comments"`
 	Coordinate *Coordinate `json:"coordinate,omitempty"`
+	Devices    []*Device   `json:"devices,omitempty"`
+}
+
+type MachineGroup struct {
+	Name       string      `json:"name"`
+	City       string      `json:"city"`
+	Coordinate *Coordinate `json:"coordinate"`
 }
 
 type User struct {

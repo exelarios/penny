@@ -57,6 +57,13 @@ type ComplexityRoot struct {
 		Longitude func(childComplexity int) int
 	}
 
+	Device struct {
+		Designs    func(childComplexity int) int
+		DeviceType func(childComplexity int) int
+		MachineID  func(childComplexity int) int
+		Name       func(childComplexity int) int
+	}
+
 	Location struct {
 		Area       func(childComplexity int) int
 		Coordinate func(childComplexity int) int
@@ -65,14 +72,25 @@ type ComplexityRoot struct {
 	}
 
 	Machine struct {
+		Address    func(childComplexity int) int
 		Area       func(childComplexity int) int
 		City       func(childComplexity int) int
+		Comments   func(childComplexity int) int
 		Coordinate func(childComplexity int) int
-		Designs    func(childComplexity int) int
-		Location   func(childComplexity int) int
+		Country    func(childComplexity int) int
+		Devices    func(childComplexity int) int
+		ID         func(childComplexity int) int
 		Name       func(childComplexity int) int
-		Region     func(childComplexity int) int
-		Updated    func(childComplexity int) int
+		Phone      func(childComplexity int) int
+		Status     func(childComplexity int) int
+		Website    func(childComplexity int) int
+		ZipCode    func(childComplexity int) int
+	}
+
+	MachineGroup struct {
+		City       func(childComplexity int) int
+		Coordinate func(childComplexity int) int
+		Name       func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -157,6 +175,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Coordinate.Longitude(childComplexity), true
 
+	case "Device.designs":
+		if e.complexity.Device.Designs == nil {
+			break
+		}
+
+		return e.complexity.Device.Designs(childComplexity), true
+
+	case "Device.deviceType":
+		if e.complexity.Device.DeviceType == nil {
+			break
+		}
+
+		return e.complexity.Device.DeviceType(childComplexity), true
+
+	case "Device.machineID":
+		if e.complexity.Device.MachineID == nil {
+			break
+		}
+
+		return e.complexity.Device.MachineID(childComplexity), true
+
+	case "Device.name":
+		if e.complexity.Device.Name == nil {
+			break
+		}
+
+		return e.complexity.Device.Name(childComplexity), true
+
 	case "Location.area":
 		if e.complexity.Location.Area == nil {
 			break
@@ -185,6 +231,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Location.URL(childComplexity), true
 
+	case "Machine.address":
+		if e.complexity.Machine.Address == nil {
+			break
+		}
+
+		return e.complexity.Machine.Address(childComplexity), true
+
 	case "Machine.area":
 		if e.complexity.Machine.Area == nil {
 			break
@@ -199,6 +252,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Machine.City(childComplexity), true
 
+	case "Machine.comments":
+		if e.complexity.Machine.Comments == nil {
+			break
+		}
+
+		return e.complexity.Machine.Comments(childComplexity), true
+
 	case "Machine.coordinate":
 		if e.complexity.Machine.Coordinate == nil {
 			break
@@ -206,19 +266,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Machine.Coordinate(childComplexity), true
 
-	case "Machine.designs":
-		if e.complexity.Machine.Designs == nil {
+	case "Machine.country":
+		if e.complexity.Machine.Country == nil {
 			break
 		}
 
-		return e.complexity.Machine.Designs(childComplexity), true
+		return e.complexity.Machine.Country(childComplexity), true
 
-	case "Machine.location":
-		if e.complexity.Machine.Location == nil {
+	case "Machine.devices":
+		if e.complexity.Machine.Devices == nil {
 			break
 		}
 
-		return e.complexity.Machine.Location(childComplexity), true
+		return e.complexity.Machine.Devices(childComplexity), true
+
+	case "Machine.id":
+		if e.complexity.Machine.ID == nil {
+			break
+		}
+
+		return e.complexity.Machine.ID(childComplexity), true
 
 	case "Machine.name":
 		if e.complexity.Machine.Name == nil {
@@ -227,19 +294,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Machine.Name(childComplexity), true
 
-	case "Machine.region":
-		if e.complexity.Machine.Region == nil {
+	case "Machine.phone":
+		if e.complexity.Machine.Phone == nil {
 			break
 		}
 
-		return e.complexity.Machine.Region(childComplexity), true
+		return e.complexity.Machine.Phone(childComplexity), true
 
-	case "Machine.updated":
-		if e.complexity.Machine.Updated == nil {
+	case "Machine.status":
+		if e.complexity.Machine.Status == nil {
 			break
 		}
 
-		return e.complexity.Machine.Updated(childComplexity), true
+		return e.complexity.Machine.Status(childComplexity), true
+
+	case "Machine.website":
+		if e.complexity.Machine.Website == nil {
+			break
+		}
+
+		return e.complexity.Machine.Website(childComplexity), true
+
+	case "Machine.zipCode":
+		if e.complexity.Machine.ZipCode == nil {
+			break
+		}
+
+		return e.complexity.Machine.ZipCode(childComplexity), true
+
+	case "MachineGroup.city":
+		if e.complexity.MachineGroup.City == nil {
+			break
+		}
+
+		return e.complexity.MachineGroup.City(childComplexity), true
+
+	case "MachineGroup.coordinate":
+		if e.complexity.MachineGroup.Coordinate == nil {
+			break
+		}
+
+		return e.complexity.MachineGroup.Coordinate(childComplexity), true
+
+	case "MachineGroup.name":
+		if e.complexity.MachineGroup.Name == nil {
+			break
+		}
+
+		return e.complexity.MachineGroup.Name(childComplexity), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -390,15 +492,33 @@ input LoginInput {
   longitude: Float!
 }
 
-type Machine {
+type Device {
   name: String!
-  location: String!
+  designs: Int!
+  deviceType: String!
+  machineID: Int!
+}
+
+type Machine {
+  id: Int!
+  name: String!
+  address: String
+  country: String!
+  zipCode: String
+  website: String
+  phone: String
   city: String!
-  designs: String!
-  updated: Time!
+  status: String
   area: Int!
-  region: String!
+  comments: String!
   coordinate: Coordinate
+  devices: [Device!]
+}
+
+type MachineGroup {
+  name: String!
+  city: String!
+  coordinate: Coordinate!
 }
 
 type Location {
@@ -800,6 +920,182 @@ func (ec *executionContext) fieldContext_Coordinate_longitude(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Device_name(ctx context.Context, field graphql.CollectedField, obj *model.Device) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Device_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Device_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Device",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Device_designs(ctx context.Context, field graphql.CollectedField, obj *model.Device) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Device_designs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Designs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Device_designs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Device",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Device_deviceType(ctx context.Context, field graphql.CollectedField, obj *model.Device) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Device_deviceType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeviceType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Device_deviceType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Device",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Device_machineID(ctx context.Context, field graphql.CollectedField, obj *model.Device) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Device_machineID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MachineID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Device_machineID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Device",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Location_name(ctx context.Context, field graphql.CollectedField, obj *model.Location) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Location_name(ctx, field)
 	if err != nil {
@@ -982,6 +1278,50 @@ func (ec *executionContext) fieldContext_Location_coordinate(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Machine_id(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Machine_name(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Machine_name(ctx, field)
 	if err != nil {
@@ -1026,8 +1366,8 @@ func (ec *executionContext) fieldContext_Machine_name(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Machine_location(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Machine_location(ctx, field)
+func (ec *executionContext) _Machine_address(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_address(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1040,7 +1380,48 @@ func (ec *executionContext) _Machine_location(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Location, nil
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_address(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Machine_country(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_country(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Country, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1057,7 +1438,130 @@ func (ec *executionContext) _Machine_location(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Machine_location(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Machine_country(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Machine_zipCode(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_zipCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ZipCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_zipCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Machine_website(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_website(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Website, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_website(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Machine_phone(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_phone(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Phone, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_phone(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Machine",
 		Field:      field,
@@ -1114,8 +1618,8 @@ func (ec *executionContext) fieldContext_Machine_city(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Machine_designs(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Machine_designs(ctx, field)
+func (ec *executionContext) _Machine_status(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_status(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1128,24 +1632,21 @@ func (ec *executionContext) _Machine_designs(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Designs, nil
+		return obj.Status, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Machine_designs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Machine_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Machine",
 		Field:      field,
@@ -1153,50 +1654,6 @@ func (ec *executionContext) fieldContext_Machine_designs(ctx context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Machine_updated(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Machine_updated(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Updated, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Machine_updated(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Machine",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1246,8 +1703,8 @@ func (ec *executionContext) fieldContext_Machine_area(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Machine_region(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Machine_region(ctx, field)
+func (ec *executionContext) _Machine_comments(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_comments(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1260,7 +1717,7 @@ func (ec *executionContext) _Machine_region(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Region, nil
+		return obj.Comments, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1277,7 +1734,7 @@ func (ec *executionContext) _Machine_region(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Machine_region(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Machine_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Machine",
 		Field:      field,
@@ -1321,6 +1778,195 @@ func (ec *executionContext) _Machine_coordinate(ctx context.Context, field graph
 func (ec *executionContext) fieldContext_Machine_coordinate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "latitude":
+				return ec.fieldContext_Coordinate_latitude(ctx, field)
+			case "longitude":
+				return ec.fieldContext_Coordinate_longitude(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Coordinate", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Machine_devices(ctx context.Context, field graphql.CollectedField, obj *model.Machine) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Machine_devices(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Devices, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Device)
+	fc.Result = res
+	return ec.marshalODevice2ᚕᚖmainᚋgraphᚋmodelᚐDeviceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Machine_devices(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Machine",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_Device_name(ctx, field)
+			case "designs":
+				return ec.fieldContext_Device_designs(ctx, field)
+			case "deviceType":
+				return ec.fieldContext_Device_deviceType(ctx, field)
+			case "machineID":
+				return ec.fieldContext_Device_machineID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Device", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MachineGroup_name(ctx context.Context, field graphql.CollectedField, obj *model.MachineGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MachineGroup_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MachineGroup_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MachineGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MachineGroup_city(ctx context.Context, field graphql.CollectedField, obj *model.MachineGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MachineGroup_city(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.City, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MachineGroup_city(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MachineGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MachineGroup_coordinate(ctx context.Context, field graphql.CollectedField, obj *model.MachineGroup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MachineGroup_coordinate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Coordinate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Coordinate)
+	fc.Result = res
+	return ec.marshalNCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MachineGroup_coordinate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MachineGroup",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1495,22 +2141,32 @@ func (ec *executionContext) fieldContext_Query_getMachinesByCode(ctx context.Con
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Machine_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Machine_name(ctx, field)
-			case "location":
-				return ec.fieldContext_Machine_location(ctx, field)
+			case "address":
+				return ec.fieldContext_Machine_address(ctx, field)
+			case "country":
+				return ec.fieldContext_Machine_country(ctx, field)
+			case "zipCode":
+				return ec.fieldContext_Machine_zipCode(ctx, field)
+			case "website":
+				return ec.fieldContext_Machine_website(ctx, field)
+			case "phone":
+				return ec.fieldContext_Machine_phone(ctx, field)
 			case "city":
 				return ec.fieldContext_Machine_city(ctx, field)
-			case "designs":
-				return ec.fieldContext_Machine_designs(ctx, field)
-			case "updated":
-				return ec.fieldContext_Machine_updated(ctx, field)
+			case "status":
+				return ec.fieldContext_Machine_status(ctx, field)
 			case "area":
 				return ec.fieldContext_Machine_area(ctx, field)
-			case "region":
-				return ec.fieldContext_Machine_region(ctx, field)
+			case "comments":
+				return ec.fieldContext_Machine_comments(ctx, field)
 			case "coordinate":
 				return ec.fieldContext_Machine_coordinate(ctx, field)
+			case "devices":
+				return ec.fieldContext_Machine_devices(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Machine", field.Name)
 		},
@@ -1568,22 +2224,32 @@ func (ec *executionContext) fieldContext_Query_getMachinesByRegion(ctx context.C
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Machine_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Machine_name(ctx, field)
-			case "location":
-				return ec.fieldContext_Machine_location(ctx, field)
+			case "address":
+				return ec.fieldContext_Machine_address(ctx, field)
+			case "country":
+				return ec.fieldContext_Machine_country(ctx, field)
+			case "zipCode":
+				return ec.fieldContext_Machine_zipCode(ctx, field)
+			case "website":
+				return ec.fieldContext_Machine_website(ctx, field)
+			case "phone":
+				return ec.fieldContext_Machine_phone(ctx, field)
 			case "city":
 				return ec.fieldContext_Machine_city(ctx, field)
-			case "designs":
-				return ec.fieldContext_Machine_designs(ctx, field)
-			case "updated":
-				return ec.fieldContext_Machine_updated(ctx, field)
+			case "status":
+				return ec.fieldContext_Machine_status(ctx, field)
 			case "area":
 				return ec.fieldContext_Machine_area(ctx, field)
-			case "region":
-				return ec.fieldContext_Machine_region(ctx, field)
+			case "comments":
+				return ec.fieldContext_Machine_comments(ctx, field)
 			case "coordinate":
 				return ec.fieldContext_Machine_coordinate(ctx, field)
+			case "devices":
+				return ec.fieldContext_Machine_devices(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Machine", field.Name)
 		},
@@ -3780,6 +4446,55 @@ func (ec *executionContext) _Coordinate(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var deviceImplementors = []string{"Device"}
+
+func (ec *executionContext) _Device(ctx context.Context, sel ast.SelectionSet, obj *model.Device) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deviceImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Device")
+		case "name":
+
+			out.Values[i] = ec._Device_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "designs":
+
+			out.Values[i] = ec._Device_designs(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deviceType":
+
+			out.Values[i] = ec._Device_deviceType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "machineID":
+
+			out.Values[i] = ec._Device_machineID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var locationImplementors = []string{"Location"}
 
 func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet, obj *model.Location) graphql.Marshaler {
@@ -3839,6 +4554,13 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Machine")
+		case "id":
+
+			out.Values[i] = ec._Machine_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "name":
 
 			out.Values[i] = ec._Machine_name(ctx, field, obj)
@@ -3846,13 +4568,29 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "location":
+		case "address":
 
-			out.Values[i] = ec._Machine_location(ctx, field, obj)
+			out.Values[i] = ec._Machine_address(ctx, field, obj)
+
+		case "country":
+
+			out.Values[i] = ec._Machine_country(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "zipCode":
+
+			out.Values[i] = ec._Machine_zipCode(ctx, field, obj)
+
+		case "website":
+
+			out.Values[i] = ec._Machine_website(ctx, field, obj)
+
+		case "phone":
+
+			out.Values[i] = ec._Machine_phone(ctx, field, obj)
+
 		case "city":
 
 			out.Values[i] = ec._Machine_city(ctx, field, obj)
@@ -3860,20 +4598,10 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "designs":
+		case "status":
 
-			out.Values[i] = ec._Machine_designs(ctx, field, obj)
+			out.Values[i] = ec._Machine_status(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updated":
-
-			out.Values[i] = ec._Machine_updated(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "area":
 
 			out.Values[i] = ec._Machine_area(ctx, field, obj)
@@ -3881,9 +4609,9 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "region":
+		case "comments":
 
-			out.Values[i] = ec._Machine_region(ctx, field, obj)
+			out.Values[i] = ec._Machine_comments(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3892,6 +4620,52 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Machine_coordinate(ctx, field, obj)
 
+		case "devices":
+
+			out.Values[i] = ec._Machine_devices(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var machineGroupImplementors = []string{"MachineGroup"}
+
+func (ec *executionContext) _MachineGroup(ctx context.Context, sel ast.SelectionSet, obj *model.MachineGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, machineGroupImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MachineGroup")
+		case "name":
+
+			out.Values[i] = ec._MachineGroup_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "city":
+
+			out.Values[i] = ec._MachineGroup_city(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "coordinate":
+
+			out.Values[i] = ec._MachineGroup_coordinate(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4445,6 +5219,16 @@ func (ec *executionContext) marshalNCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordin
 	return ec._Coordinate(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNDevice2ᚖmainᚋgraphᚋmodelᚐDevice(ctx context.Context, sel ast.SelectionSet, v *model.Device) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Device(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
 	res, err := graphql.UnmarshalFloatContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4906,6 +5690,53 @@ func (ec *executionContext) marshalOCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordin
 		return graphql.Null
 	}
 	return ec._Coordinate(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODevice2ᚕᚖmainᚋgraphᚋmodelᚐDeviceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Device) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDevice2ᚖmainᚋgraphᚋmodelᚐDevice(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOMachine2ᚖmainᚋgraphᚋmodelᚐMachine(ctx context.Context, sel ast.SelectionSet, v *model.Machine) graphql.Marshaler {
