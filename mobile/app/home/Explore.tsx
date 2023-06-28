@@ -13,14 +13,13 @@ import { useMarkerContext } from "@/context/MarkerContext";
 import { Ionicons } from '@expo/vector-icons';
 import { ExploreProvider, useExploreContext } from "@/context/ExploreContext";
 import { Machine } from "@/types";
+import useMap from "@/hooks/useMap";
 
 import CityMachineIcon from "@/assets/city-machines.png";
 import RegionMachineIcon from "@/assets/region-machines.png";
 import MachineIcon from "@/assets/machine.png";
-import useMap from "@/hooks/useMap";
 
 function Header() {
-  const { regions } = useRegionQuery();
   const { currentRegion, machines, dispatch } = useMarkerContext();
   const map = useMap();
 
@@ -30,12 +29,14 @@ function Header() {
       map.setRegion(currentRegion.coordinate);
     } else {
       dispatch.setCurrentRegion(null)
-      const coordinates = regions?.map(region => {
-        return region.coordinate;
+      map.setRegion({
+        latitude: 38.34831785788287, 
+        longitude: -93.48790638148783,
+        latitudeDelta: 0,
+        longitudeDelta: 0
       });
-      map.fitRegion(coordinates);
     }
-  }, [currentRegion, machines, regions]);
+  }, [currentRegion, machines]);
 
   return (
     <SafeAreaView style={styles.headerContainer}>
@@ -95,7 +96,7 @@ function MachineMarker(props: MachineMarkerProps) {
 
   return (
     <Marker 
-      key={`${details.name} ${details.city}`}
+      key={details.id}
       onPress={handleOnPress}
       coordinate={details.coordinate}>
         <View style={styles.marker}>
@@ -212,7 +213,7 @@ function Explore() {
     return machines?.map((machine) => {
       return (
         <MachineMarker
-          key={`${machine.name} ${machine.city}`}
+          key={machine.id}
           details={machine}
         />
       );
@@ -228,7 +229,7 @@ function Explore() {
   }
 
   return (
-    <ExploreProvider map={map.current}>
+    <ExploreProvider map={map}>
       <View style={styles.container}>
         <Animated
           ref={map}

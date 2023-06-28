@@ -1,11 +1,16 @@
 import { useExploreContext } from "@/context/ExploreContext";
 import { Coordinate } from "@/types";
 
+type SetRegionParams = Coordinate & {
+  latitudeDelta?: number;
+  longitudeDelta?: number;
+}
+
 function useMap() {
   const { map } = useExploreContext();
 
   const fitRegion = (coordinates: Coordinate[]) => {
-    map.fitToCoordinates(coordinates, {
+    map.current.fitToCoordinates(coordinates, {
       animated: true,
       edgePadding: {
         top: 100,
@@ -16,11 +21,11 @@ function useMap() {
     });
   }
 
-  const setRegion = (coordinate: Coordinate) => {
-    map.animateToRegion({
+  const setRegion = (coordinate: SetRegionParams) => {
+    map.current.animateToRegion({
       ...coordinate,
-      latitudeDelta: 10,
-      longitudeDelta: 10
+      latitudeDelta: coordinate?.latitudeDelta || 10,
+      longitudeDelta: coordinate?.longitudeDelta || 10
     }, 300);
   }
 

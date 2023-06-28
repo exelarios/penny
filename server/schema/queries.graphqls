@@ -8,8 +8,13 @@ input GetMachineByRegionInput {
   region: String!
 }
 
+input GetMachineById {
+  id: Int!
+}
+
 type Query {
   locations: [Location!]!
   getMachinesByCode(input: GetMachineByCodeInput!): [Machine]!
   getMachinesByRegion(input: GetMachineByRegionInput!): [Machine]!
+  GetMachineById(input: GetMachineById!): Machine!
 }

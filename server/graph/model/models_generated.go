@@ -29,6 +29,10 @@ type GetMachineByCodeInput struct {
 	Area int `json:"area"`
 }
 
+type GetMachineByID struct {
+	ID int `json:"id"`
+}
+
 type GetMachineByRegionInput struct {
 	Region string `json:"region"`
 }
@@ -54,10 +58,10 @@ type Machine struct {
 	Website    *string     `json:"website,omitempty"`
 	Phone      *string     `json:"phone,omitempty"`
 	City       string      `json:"city"`
-	Status     *string     `json:"status,omitempty"`
+	Status     string      `json:"status"`
 	Area       int         `json:"area"`
 	Comments   string      `json:"comments"`
-	Coordinate *Coordinate `json:"coordinate,omitempty"`
+	Coordinate *Coordinate `json:"coordinate"`
 	Devices    []*Device   `json:"devices,omitempty"`
 }
 

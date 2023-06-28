@@ -7,7 +7,7 @@ import { useMarkerContext } from "@/context/MarkerContext";
 
 function MachineDetailsSheet() {
   const { currentMachine } = useMarkerContext();
-  const { name, city, location, designs } = currentMachine;
+  const { name, city, address, id, country } = currentMachine;
 
   const snapPoints = useMemo(() => {
     return ["15%", "50%", "90%"];
@@ -16,7 +16,7 @@ function MachineDetailsSheet() {
   return (
     <BottomSheet snapPoints={snapPoints}>
       <Screen>
-        <Text variant="h2">{location}, {city}</Text>
+        <Text variant="h2">{address}, {city}</Text>
         <Text variant="h1">{name}</Text>
       </Screen>
     </BottomSheet>

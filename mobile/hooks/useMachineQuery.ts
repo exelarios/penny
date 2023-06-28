@@ -12,11 +12,13 @@ async function getMachinesQuery(region: number) {
   const MachinesQuery = gql`
     query MachineQuery($area: Int!) {
       getMachinesByCode(input: {area: $area}) {
+        id
         name
-        location
+        address
+        status
+        country
+        area
         city
-        designs
-        updated
         coordinate {
           longitude
           latitude

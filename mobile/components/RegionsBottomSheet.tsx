@@ -10,6 +10,7 @@ import { useMarkerContext } from "@/context/MarkerContext";
 import useRegionQuery from "@/hooks/useRegionQuery";
 import { MachineRegion } from "@/types";
 import { useExploreContext } from "@/context/ExploreContext";
+import useMap from "@/hooks/useMap";
 
 type RenderItemProps = {
   item: MachineRegion
@@ -18,7 +19,7 @@ type RenderItemProps = {
 function RegionsBottomSheet() {
   const { dispatch } = useMarkerContext();
   const { regions, regionsUtils } = useRegionQuery();
-  const { map } = useExploreContext();
+  const map = useMap();
   const inputRef = useRef<TextInput>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterValue, setFilterValue] = useState("");
@@ -28,17 +29,13 @@ function RegionsBottomSheet() {
   }, []);
 
   const regionsFiltered = useMemo(() => {
-    return regions.filter(region => region.name.toLowerCase().includes(filterValue.toLowerCase()));
+    return regions?.filter(region => region.name.toLowerCase().includes(filterValue.toLowerCase()));
   }, [regions, filterValue]);
 
   const renderItem = useCallback(({ item }: RenderItemProps) => {
     const handleOnPress = () => {
       dispatch.setCurrentRegion(item);
-      map.animateToRegion({
-        ...item.coordinate,
-        latitudeDelta: 10,
-        longitudeDelta: 10
-      }, 300);
+      map.setRegion(item.coordinate);
     }
 
     return (

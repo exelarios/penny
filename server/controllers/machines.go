@@ -150,20 +150,15 @@ func (m *MachineController) Scrap(code int) ([]*models.Machine, error) {
 	return machines, nil
 }
 
-func getCorrdinates(client *maps.Map, address string, output chan *models.Coordinate) {
+func getCorrdinates(client *maps.Map, address string, output chan models.Coordinate) {
 	latlong, err := client.Latlong(address)
 	if err != nil {
 		panic(err)
 	}
 
-	coordinate := &models.Coordinate{}
-	if latlong != nil {
-		coordinate = &models.Coordinate{
-			Latitude:  latlong.Latitude,
-			Longitude: latlong.Longitude,
-		}
-	} else {
-		coordinate = nil
+	coordinate := models.Coordinate{
+		Latitude:  latlong.Latitude,
+		Longitude: latlong.Longitude,
 	}
 
 	output <- coordinate
@@ -188,7 +183,7 @@ func (m *MachineController) Migrate(code int) error {
 			coordinateRequest = fmt.Sprintf("%s, %s, %s", machine.Name, machine.City, machine.Country)
 		}
 
-		var latlong = make(chan *models.Coordinate)
+		var latlong = make(chan models.Coordinate)
 
 		go getCorrdinates(client, coordinateRequest, latlong)
 
@@ -201,6 +196,53 @@ func (m *MachineController) Migrate(code int) error {
 	}
 
 	return nil
+}
+
+func (m *MachineController) GetMachineById(id int) (*model.Machine, error) {
+	var output *models.Machine
+	var devices []*model.Device
+
+	response := m.Database.Model(&models.Machine{}).Preload("Devices").First(&output, &models.Machine{
+		Id: id,
+	})
+
+	if response.Error != nil {
+		return nil, response.Error
+	}
+
+	for _, device := range output.Devices {
+		output := model.Device{
+			Name:       device.Name,
+			Designs:    device.Designs,
+			DeviceType: device.DeviceType,
+			MachineID:  device.MachineID,
+		}
+
+		devices = append(devices, &output)
+	}
+
+	coordinate := &model.Coordinate{
+		Latitude:  output.Coordinate.Latitude,
+		Longitude: output.Coordinate.Longitude,
+	}
+
+	machine := &model.Machine{
+		ID:         output.Id,
+		Name:       output.Name,
+		Address:    &output.Address,
+		City:       output.City,
+		Status:     output.Status,
+		Country:    output.Country,
+		ZipCode:    &output.ZipCode,
+		Phone:      &output.Phone,
+		Website:    &output.Website,
+		Devices:    devices,
+		Area:       output.Area,
+		Coordinate: coordinate,
+		Comments:   output.Comments,
+	}
+
+	return machine, nil
 }
 
 func (m *MachineController) GetMachinesByCode(code int) ([]*model.Machine, error) {
@@ -236,7 +278,7 @@ func (m *MachineController) GetMachinesByCode(code int) ([]*model.Machine, error
 			Name:       machine.Name,
 			Address:    &machine.Address,
 			City:       machine.City,
-			Status:     &machine.Status,
+			Status:     machine.Status,
 			Country:    machine.Country,
 			ZipCode:    &machine.ZipCode,
 			Phone:      &machine.Phone,

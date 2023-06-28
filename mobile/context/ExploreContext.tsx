@@ -4,7 +4,7 @@ import MapView, { Region } from "react-native-maps";
 const ExploreContext = createContext<ExploreContext | undefined>(undefined);
 
 type ExploreContext = {
-  map: MapView
+  map: React.MutableRefObject<MapView>
 }
 
 export function useExploreContext() {
@@ -17,7 +17,7 @@ export function useExploreContext() {
 }
 
 type ExploreProviderProps = {
-  map: MapView
+  map: React.MutableRefObject<MapView>
   children: React.ReactNode;
 }
 

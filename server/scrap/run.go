@@ -27,7 +27,7 @@ func reconcile(db *gorm.DB) {
 
 	// fmt.Println(data)
 
-	err := machines.Migrate(45)
+	err := machines.Migrate(84)
 	if err != nil {
 		panic(err)
 	}

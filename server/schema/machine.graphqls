@@ -19,10 +19,10 @@ type Machine {
   website: String
   phone: String
   city: String!
-  status: String
+  status: String!
   area: Int!
   comments: String!
-  coordinate: Coordinate
+  coordinate: Coordinate!
   devices: [Device!]
 }
 

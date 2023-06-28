@@ -4,11 +4,14 @@ export type Coordinate = {
 }
 
 export type Machine = {
-  name: string
-  location: string
-  city: string
-  designs: string
-  coordinate: Coordinate
+  id: number;
+  name: string;
+  address: string;
+  status: string;
+  area: number;
+  country: string;
+  city: string;
+  coordinate: Coordinate;
 }
 
 export type MachineGroup = {

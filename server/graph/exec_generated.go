@@ -98,6 +98,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetMachineByID      func(childComplexity int, input model.GetMachineByID) int
 		GetMachinesByCode   func(childComplexity int, input model.GetMachineByCodeInput) int
 		GetMachinesByRegion func(childComplexity int, input model.GetMachineByRegionInput) int
 		Locations           func(childComplexity int) int
@@ -116,6 +117,7 @@ type QueryResolver interface {
 	Locations(ctx context.Context) ([]*model.Location, error)
 	GetMachinesByCode(ctx context.Context, input model.GetMachineByCodeInput) ([]*model.Machine, error)
 	GetMachinesByRegion(ctx context.Context, input model.GetMachineByRegionInput) ([]*model.Machine, error)
+	GetMachineByID(ctx context.Context, input model.GetMachineByID) (*model.Machine, error)
 }
 
 type executableSchema struct {
@@ -355,6 +357,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
+	case "Query.GetMachineById":
+		if e.complexity.Query.GetMachineByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMachineById_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMachineByID(childComplexity, args["input"].(model.GetMachineByID)), true
+
 	case "Query.getMachinesByCode":
 		if e.complexity.Query.GetMachinesByCode == nil {
 			break
@@ -409,6 +423,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputGetMachineByCodeInput,
+		ec.unmarshalInputGetMachineById,
 		ec.unmarshalInputGetMachineByRegionInput,
 		ec.unmarshalInputLoginInput,
 	)
@@ -508,10 +523,10 @@ type Machine {
   website: String
   phone: String
   city: String!
-  status: String
+  status: String!
   area: Int!
   comments: String!
-  coordinate: Coordinate
+  coordinate: Coordinate!
   devices: [Device!]
 }
 
@@ -540,10 +555,15 @@ input GetMachineByRegionInput {
   region: String!
 }
 
+input GetMachineById {
+  id: Int!
+}
+
 type Query {
   locations: [Location!]!
   getMachinesByCode(input: GetMachineByCodeInput!): [Machine]!
   getMachinesByRegion(input: GetMachineByRegionInput!): [Machine]!
+  GetMachineById(input: GetMachineById!): Machine!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -559,6 +579,21 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNLoginInput2mainᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMachineById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetMachineByID
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetMachineById2mainᚋgraphᚋmodelᚐGetMachineByID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1639,11 +1674,14 @@ func (ec *executionContext) _Machine_status(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Machine_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1768,11 +1806,14 @@ func (ec *executionContext) _Machine_coordinate(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Coordinate)
 	fc.Result = res
-	return ec.marshalOCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx, field.Selections, res)
+	return ec.marshalNCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Machine_coordinate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2262,6 +2303,89 @@ func (ec *executionContext) fieldContext_Query_getMachinesByRegion(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getMachinesByRegion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMachineById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMachineById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMachineByID(rctx, fc.Args["input"].(model.GetMachineByID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Machine)
+	fc.Result = res
+	return ec.marshalNMachine2ᚖmainᚋgraphᚋmodelᚐMachine(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMachineById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Machine_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Machine_name(ctx, field)
+			case "address":
+				return ec.fieldContext_Machine_address(ctx, field)
+			case "country":
+				return ec.fieldContext_Machine_country(ctx, field)
+			case "zipCode":
+				return ec.fieldContext_Machine_zipCode(ctx, field)
+			case "website":
+				return ec.fieldContext_Machine_website(ctx, field)
+			case "phone":
+				return ec.fieldContext_Machine_phone(ctx, field)
+			case "city":
+				return ec.fieldContext_Machine_city(ctx, field)
+			case "status":
+				return ec.fieldContext_Machine_status(ctx, field)
+			case "area":
+				return ec.fieldContext_Machine_area(ctx, field)
+			case "comments":
+				return ec.fieldContext_Machine_comments(ctx, field)
+			case "coordinate":
+				return ec.fieldContext_Machine_coordinate(ctx, field)
+			case "devices":
+				return ec.fieldContext_Machine_devices(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Machine", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMachineById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4287,6 +4411,35 @@ func (ec *executionContext) unmarshalInputGetMachineByCodeInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetMachineById(ctx context.Context, obj interface{}) (model.GetMachineByID, error) {
+	var it model.GetMachineByID
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetMachineByRegionInput(ctx context.Context, obj interface{}) (model.GetMachineByRegionInput, error) {
 	var it model.GetMachineByRegionInput
 	asMap := map[string]interface{}{}
@@ -4602,6 +4755,9 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Machine_status(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "area":
 
 			out.Values[i] = ec._Machine_area(ctx, field, obj)
@@ -4620,6 +4776,9 @@ func (ec *executionContext) _Machine(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Machine_coordinate(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "devices":
 
 			out.Values[i] = ec._Machine_devices(ctx, field, obj)
@@ -4791,6 +4950,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getMachinesByRegion(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "GetMachineById":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMachineById(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -5249,6 +5431,11 @@ func (ec *executionContext) unmarshalNGetMachineByCodeInput2mainᚋgraphᚋmodel
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNGetMachineById2mainᚋgraphᚋmodelᚐGetMachineByID(ctx context.Context, v interface{}) (model.GetMachineByID, error) {
+	res, err := ec.unmarshalInputGetMachineById(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNGetMachineByRegionInput2mainᚋgraphᚋmodelᚐGetMachineByRegionInput(ctx context.Context, v interface{}) (model.GetMachineByRegionInput, error) {
 	res, err := ec.unmarshalInputGetMachineByRegionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5328,6 +5515,10 @@ func (ec *executionContext) unmarshalNLoginInput2mainᚋgraphᚋmodelᚐLoginInp
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNMachine2mainᚋgraphᚋmodelᚐMachine(ctx context.Context, sel ast.SelectionSet, v model.Machine) graphql.Marshaler {
+	return ec._Machine(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNMachine2ᚕᚖmainᚋgraphᚋmodelᚐMachine(ctx context.Context, sel ast.SelectionSet, v []*model.Machine) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -5364,6 +5555,16 @@ func (ec *executionContext) marshalNMachine2ᚕᚖmainᚋgraphᚋmodelᚐMachine
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNMachine2ᚖmainᚋgraphᚋmodelᚐMachine(ctx context.Context, sel ast.SelectionSet, v *model.Machine) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Machine(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -5683,13 +5884,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOCoordinate2ᚖmainᚋgraphᚋmodelᚐCoordinate(ctx context.Context, sel ast.SelectionSet, v *model.Coordinate) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Coordinate(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODevice2ᚕᚖmainᚋgraphᚋmodelᚐDeviceᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Device) graphql.Marshaler {

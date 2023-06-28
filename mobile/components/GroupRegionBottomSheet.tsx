@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import Text from "@/components/Text";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
@@ -7,6 +7,7 @@ import { MachineGroup } from "@/types";
 import { useMarkerContext } from "@/context/MarkerContext";
 
 import { FontAwesome } from "@expo/vector-icons";
+import useMap from "@/hooks/useMap";
 
 type RenderItemProps = {
   item: MachineGroup
@@ -14,7 +15,9 @@ type RenderItemProps = {
 
 function GroupRegionBottomSheet() {
   const { currentRegion, dispatch } = useMarkerContext();
+  const map = useMap();
   const { cities } = useMachineByCitiesQuery();
+  const sheet = useRef<BottomSheet>(null);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -36,6 +39,11 @@ function GroupRegionBottomSheet() {
     const amountOfMachines = item.group.length;
     const handleOnPress = () => {
       dispatch.selectMachines(item.group);
+      const coorindates = item.group?.map((machine) => {
+        return machine.coordinate;
+      });
+      sheet.current.collapse();
+      map.fitRegion(coorindates);
     };
 
     return (
@@ -59,7 +67,7 @@ function GroupRegionBottomSheet() {
   }, []);
 
   return (
-    <BottomSheet snapPoints={snapPoints}>
+    <BottomSheet ref={sheet} snapPoints={snapPoints}>
       <View style={styles.header}>
         <Text variant="h1">Cities</Text>
         <FontAwesome

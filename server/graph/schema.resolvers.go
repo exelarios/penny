@@ -18,9 +18,9 @@ func (r *queryResolver) Locations(ctx context.Context) ([]*model.Location, error
 	return r.LocationController.GetLocations()
 }
 
-// func (r *queryResolver) Devices(ctx context.Context) ([]*model.Device, error) {
-// 	return r.MachineController.GetDevices()
-// }
+func (r *queryResolver) GetMachineByID(ctx context.Context, input model.GetMachineByID) (*model.Machine, error) {
+	return r.MachineController.GetMachineById(input.ID)
+}
 
 func (r *queryResolver) GetMachinesByCode(ctx context.Context, input model.GetMachineByCodeInput) ([]*model.Machine, error) {
 	return r.MachineController.GetMachinesByCode(input.Area)
