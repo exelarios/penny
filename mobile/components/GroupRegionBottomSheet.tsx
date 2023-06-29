@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import Text from "@/components/Text";
-import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetFlatList, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { TextInput } from "react-native-gesture-handler";
 import { useMachineByCitiesQuery } from "@/hooks/useMachineQuery";
 import { MachineGroup } from "@/types";
 import { useMarkerContext } from "@/context/MarkerContext";
@@ -19,21 +20,31 @@ function GroupRegionBottomSheet() {
   const { cities } = useMachineByCitiesQuery();
   const sheet = useRef<BottomSheet>(null);
 
+  const inputRef = useRef<TextInput>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterValue, setFilterValue] = useState("");
 
   const handleOnSearchOpen = useCallback(() => {
     setIsFilterOpen(true);
-    // inputRef.current?.focus();
+    inputRef.current?.focus();
   }, [isFilterOpen]);
 
   const handleSearchOnClose = useCallback(() => {
     setIsFilterOpen(false);
-    // inputRef.current?.blur();
+    inputRef.current?.blur();
   }, [isFilterOpen]);
 
   const snapPoints = useMemo(() => {
     return ["15%", "50%", "90%"];
   }, []);
+
+  const regionsFiltered = useMemo(() => {
+    return cities?.filter(city => city.name.toLowerCase().includes(filterValue.toLowerCase()));
+  }, [cities, filterValue]);
+
+  const handleOnChangeText = useCallback((value: string) => {
+    setFilterValue(value);
+  }, [filterValue]);
 
   const renderItem = useCallback(({ item }: RenderItemProps) => {
     const amountOfMachines = item.group.length;
@@ -77,8 +88,14 @@ function GroupRegionBottomSheet() {
           color="black"
         />
       </View>
+      <BottomSheetTextInput
+        ref={inputRef}
+        style={[styles.bottomSheetInput, { display: `${isFilterOpen ? "flex" : "none"}` }]}
+        onChangeText={handleOnChangeText}
+        value={filterValue}
+      />
       <View style={[styles.regionDivider, { marginVertical: 5, width: "100%" }]}/>
-      <BottomSheetFlatList data={cities} renderItem={renderItem}/>
+      <BottomSheetFlatList data={regionsFiltered} renderItem={renderItem}/>
     </BottomSheet>
   );
 }
@@ -101,6 +118,10 @@ const styles = StyleSheet.create({
     height: 1,
     borderRadius: 10
   },
+  bottomSheetInput: {
+    fontSize: 30,
+    margin: "2%"
+  }
 });
 
 export default GroupRegionBottomSheet;

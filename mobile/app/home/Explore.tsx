@@ -153,11 +153,9 @@ function Explore() {
     });
   }, [regions, currentRegion]);
 
-  const onRegionChange = useCallback(async (region: Region) => {
+  const onRegionChangeComplete = useCallback(async (region: Region) => {
     if (!map.current) return;
-    const position = await map.current.getCamera();
-    // console.log(position.center);
-  }, [map.current]);
+  }, []);
 
   const citiesMarkers = useMemo(() => {
     return cities?.map((city) => {
@@ -237,8 +235,7 @@ function Explore() {
           onMapReady={() => {}}
           showsUserLocation
           showsTraffic={false}
-          // region={region}
-          onRegionChange={onRegionChange}
+          onRegionChangeComplete={onRegionChangeComplete}
           style={styles.map}>
             {regionMarkers}
             {currentRegion !== null && machines.length === 0 ? citiesMarkers : machinesMarkers}

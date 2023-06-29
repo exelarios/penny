@@ -41,10 +41,6 @@ function CallToAction(props: CallToActionProps) {
   );
 }
 
-function Button() {
-
-}
-
 function MachineDetailsSheet() {
   const { machine, machineUtils } = UseMachineDetailsQuery();
   const [showFullComments, setShowFullComments] = useState(false);
