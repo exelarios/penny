@@ -8,7 +8,10 @@ import (
 	"main/models"
 	"net/url"
 	"os"
+	"regexp"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gocolly/colly"
 	"gorm.io/gorm"
@@ -22,7 +25,25 @@ func isMachineDeprecated(designs string) bool {
 	return designs == "Gone" || designs == "Moved"
 }
 
+func removeHTMLTags(in string) string {
+	// regex to match html tag
+	const pattern = `(<\/?[a-zA-A]+?[^>]*\/?>)*`
+	r := regexp.MustCompile(pattern)
+	groups := r.FindAllString(in, -1)
+	// should replace long string first
+	sort.Slice(groups, func(i, j int) bool {
+		return len(groups[i]) > len(groups[j])
+	})
+	for _, group := range groups {
+		if strings.TrimSpace(group) != "" {
+			in = strings.ReplaceAll(in, group, "")
+		}
+	}
+	return in
+}
+
 func (m *MachineController) Scrap(code int) ([]*models.Machine, error) {
+	fmt.Println("Begin scrapping ... ")
 	var machines []*models.Machine
 	var URLs []string
 
@@ -120,6 +141,8 @@ func (m *MachineController) Scrap(code int) ([]*models.Machine, error) {
 			devices = append(devices, device)
 		}
 
+		comments = removeHTMLTags(comments)
+
 		machine := &models.Machine{
 			Id:       id,
 			Name:     name,
@@ -147,16 +170,18 @@ func (m *MachineController) Scrap(code int) ([]*models.Machine, error) {
 		machines = append(machines, machine)
 	}
 
+	fmt.Println("End scrapping ... ")
+
 	return machines, nil
 }
 
-func getCorrdinates(client *maps.Map, address string, output chan models.Coordinate) {
+func getCorrdinates(client *maps.Map, address string, output chan *models.Coordinate) {
 	latlong, err := client.Latlong(address)
 	if err != nil {
 		panic(err)
 	}
 
-	coordinate := models.Coordinate{
+	coordinate := &models.Coordinate{
 		Latitude:  latlong.Latitude,
 		Longitude: latlong.Longitude,
 	}
@@ -183,13 +208,13 @@ func (m *MachineController) Migrate(code int) error {
 			coordinateRequest = fmt.Sprintf("%s, %s, %s", machine.Name, machine.City, machine.Country)
 		}
 
-		var latlong = make(chan models.Coordinate)
+		var latlong = make(chan *models.Coordinate)
 
 		go getCorrdinates(client, coordinateRequest, latlong)
 
 		machine.Coordinate = <-latlong
 
-		result := m.Database.Model(&models.Machine{}).FirstOrCreate(machine)
+		result := m.Database.Model(&models.Machine{}).FirstOrCreate(&machine)
 		if result.RowsAffected <= 0 {
 			m.Database.Model(&models.Machine{}).Where("id = ?", machine.Id).Updates(machine)
 		}

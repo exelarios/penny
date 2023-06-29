@@ -4,9 +4,11 @@ import request, { gql } from "graphql-request";
 import { Machine, MachineGroup } from "@/types";
 import { useMarkerContext } from "@/context/MarkerContext";
 
-type UseMachinesQueryRequest = Promise<{
+type UseMachineQueryResponse = {
   getMachinesByCode: Machine[]
-}>
+}
+
+type UseMachinesQueryRequest = Promise<UseMachineQueryResponse>
 
 async function getMachinesQuery(region: number) {
   const MachinesQuery = gql`
@@ -39,7 +41,7 @@ export function useMachineQuery() {
   const { currentRegion } = useMarkerContext();
   console.log("@region:", currentRegion?.name);
   const area = currentRegion?.area;
-  const query = useQuery<{ getMachinesByCode: Machine[]}, Error, Machine[]>({
+  const query = useQuery<UseMachineQueryResponse, Error, Machine[]>({
     queryKey: ["getMachinesByCode", area],
     queryFn: () => getMachinesQuery(area),
     select: (payload) => {
@@ -64,7 +66,7 @@ const machinesBasedOnCity = (machines: Machine[]) => {
   for (const machine of machines) {
     // If the machine doesn't have any coordinates, we will just ignore them.
     if (machine.coordinate === null) {
-      noCoordinates.push(`${machine.name}, ${machine.location}`);
+      noCoordinates.push(`${machine.name} with id = ${machine.id}`);
       continue;
     }
     cities.add(machine.city);

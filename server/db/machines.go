@@ -34,7 +34,7 @@ func DoesMachineExist(db *gorm.DB, name string, location string) (bool, error) {
 }
 
 func InsertMachine(db *gorm.DB, input *model.Machine) error {
-	coordinate := models.Coordinate{
+	coordinate := &models.Coordinate{
 		Latitude:  input.Coordinate.Latitude,
 		Longitude: input.Coordinate.Longitude,
 	}

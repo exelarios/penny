@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
+import Explore from "./Explore";
 
 type RouteProps = {
   name: String
@@ -31,10 +32,11 @@ function options(props: ScreenOptionProps) {
 
 function Layout() {
   return (
-    <Tabs
-      initialRouteName="Explore"
-      screenOptions={options}>
-    </Tabs>
+    // <Tabs
+    //   initialRouteName="Explore"
+    //   screenOptions={options}>
+    // </Tabs>
+    <Explore/>
   );
 }
 

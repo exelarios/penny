@@ -24,18 +24,18 @@ type Location struct {
 }
 
 type Machine struct {
-	Id         int        `json:"id" gorm:"primaryKey"`
-	Name       string     `json:"name"`
-	Address    string     `json:"address"`
-	Country    string     `json:"country"`
-	ZipCode    string     `json:"zipCode"`
-	Website    string     `json:"website"`
-	Phone      string     `json:"phone"`
-	City       string     `json:"city"`
-	Area       int        `json:"area"`
-	Status     string     `json:"status"`
-	Comments   string     `json:"comments"`
-	Updated    time.Time  `json:"updated"`
-	Coordinate Coordinate `json:"coordinate" gorm:"embedded; embeddedPrefix:coordinate_"`
-	Devices    []*Device  `json:"devices" gorm:"foreignKey:MachineID; constraint:OnUpdate:CASCADE, OnDelete:CASCADE;"`
+	Id         int         `json:"id" gorm:"primaryKey"`
+	Name       string      `json:"name"`
+	Address    string      `json:"address"`
+	Country    string      `json:"country"`
+	ZipCode    string      `json:"zipCode"`
+	Website    string      `json:"website"`
+	Phone      string      `json:"phone"`
+	City       string      `json:"city"`
+	Area       int         `json:"area"`
+	Status     string      `json:"status"`
+	Comments   string      `json:"comments"`
+	Updated    time.Time   `json:"updated"`
+	Coordinate *Coordinate `json:"coordinate" gorm:"embedded; embeddedPrefix:coordinate_"`
+	Devices    []*Device   `json:"devices" gorm:"foreignKey:MachineID; constraint:OnUpdate:CASCADE, OnDelete:CASCADE;"`
 }

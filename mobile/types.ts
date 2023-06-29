@@ -14,6 +14,27 @@ export type Machine = {
   coordinate: Coordinate;
 }
 
+export type Device = {
+  name: string;
+  designs: number;
+  deviceType: string;
+}
+
+export type MachineDetail = {
+  id: number;
+  name: string;
+  address: string;
+  country: string;
+  zipCode: string;
+  website: string;
+  phone: string;
+  comments: string;
+  area: number;
+  city: string;
+  status: string;
+  devices: Device[];
+}
+
 export type MachineGroup = {
   name: string;
   coordinate: Coordinate,

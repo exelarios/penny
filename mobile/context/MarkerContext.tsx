@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useReducer } from "react";
-import { Machine, MachineGroup, MachineRegion } from "@/types";
+import { Machine, MachineRegion } from "@/types";
 
 interface MarkerState {
   currentRegion: MachineRegion;
